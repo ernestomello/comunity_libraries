@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from environs import Env
+
+env = Env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +24,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ite81e+mgtqtc7z9#sk8=k^s43hnq#p7p1v9!oo^s$!2fk7hl4'
+SECRET_KEY = env.str("SECRET_KEY",default='django-insecure-!r!)0*)_rrxd)*padn7+4h+u9jhz83deqesl03!ft)fz0mrr2m')
+#SECRET_KEY = 'django-insecure-ite81e+mgtqtc7z9#sk8=k^s43hnq#p7p1v9!oo^s$!2fk7hl4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG",default=True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS",default=['localhost', ])
+
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS",default=["http://localhost"])
+CSRF_ALLOWED_ORIGINS = env.list("CSRF_ALLOWED_ORIGINS",default=["http://localhost"]) 
+#CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE",default=False)
+#SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE",default=False)
+#SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT",default=False)
+CORS_ORIGINS_WHITELIST = env.list("CORS_ORIGINS_WHITELIST",default=["http://localhost"]) 
 
 
 # Application definition
@@ -37,6 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'libraries',
+    'books',
 ]
 
 MIDDLEWARE = [
@@ -102,9 +116,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Montevideo'
 
 USE_I18N = True
 
@@ -114,7 +128,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = env.str("STATIC_URL",default='static/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
