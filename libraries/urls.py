@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from books import views
 from django.utils.translation import gettext_lazy as _
 
 admin.site.site_url = "https://drive.google.com/drive/folders/1FRfPjx0VQ8jo7fWHyRdGop45oJflX5qe?usp=sharing" #Para agregar el sitio de la ayuda de SGA Administracion
@@ -25,5 +26,6 @@ admin.site.site_title = _("Inventario Admin Portal")
 admin.site.index_title = _("Portal Administrativo ")   
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.search_page, name='home'), # Página por defecto
     path('books/', include('books.urls')),     
 ]

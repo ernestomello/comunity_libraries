@@ -1,0 +1,32 @@
+body {
+    background: url('/static/books/img/fondo.jpg') no-repeat center center fixed;
+    background-size: cover;
+    background-blend-mode: lighten;
+}
+.search-bg {
+    background: url('/static/books/img/fondo.jpg') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    z-index: 1;
+}
+.search-container,
+.table-responsive {
+    background: rgba(255,255,255,0.95); /* Fondo blanco semitransparente para mejor lectura */
+    border-radius: 10px;
+    position: relative;
+    z-index: 2;
+}
+.search-container {
+    padding: 30px;
+}
+#results {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 20px;
+}
+.book-card {
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 5px;
+}

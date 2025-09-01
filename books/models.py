@@ -51,16 +51,16 @@ class LibraryBookItem(models.Model):
         ('lost', _("Lost")),
         # Agrega más estados si lo necesitas
     ]
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available', verbose_name=_("Estado"))
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available', verbose_name=_("Status"))
 
     def __str__(self):
         return f"{self.book.title} ({self.code}) en {self.library.name} - {self.get_status_display()}"
     
 class Reservation(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("Nombre"))
-    email = models.EmailField(verbose_name=_("Correo electrónico"))
-    items = models.ManyToManyField(LibraryBookItem, verbose_name=_("Ejemplares reservados"))
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Fecha de reserva"))
+    name = models.CharField(max_length=255, verbose_name=_("Name"))
+    email = models.EmailField(verbose_name=_("Email"))
+    items = models.ManyToManyField(LibraryBookItem, verbose_name=_("Reserved Items"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
 
     def __str__(self):
         return f"{self.name} ({self.email})"
