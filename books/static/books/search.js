@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <thead>
                         <tr>
                             <th></th>
+                            <th>Estado</th>
                             <th>Título</th>
                             <th>Autor(es)</th>
                             <th>ISBN</th>
@@ -32,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <th>Biblioteca</th>
                             <th>País</th>
                             <th>Dirección</th>
-                            <th>Estado</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>
                     <input type="checkbox" class="book-check" data-code="${book.code}" ${book.is_available ? '' : 'disabled'}>
                 </td>
+                <td>${book.status}</td>
                 <td>${book.title}</td>
                 <td>${book.authors}</td>
                 <td>${book.isbn}</td>
@@ -54,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${book.library}</td>
                 <td>${book.country}</td>
                 <td>${book.address}</td>
-                <td>${book.status}</td>
+               
             `;
             tbody.appendChild(row);
         });

@@ -3,8 +3,9 @@ from django.shortcuts import render
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from .models import Reservation, LibraryBookItem
+from .models import Reservation, LibraryBookItem, Library
 from django.db.models import Q
+from django.utils import timezone
 
 @csrf_exempt
 @require_POST
@@ -44,4 +45,8 @@ def search_books(request):
     return JsonResponse({'results': results})
 
 def search_page(request):
-    return render(request, 'books/search.html')
+    libraries = Library.objects.all()
+    return render(request, 'books/search.html', {
+        'libraries': libraries,
+        'now': timezone.now(),
+    })
