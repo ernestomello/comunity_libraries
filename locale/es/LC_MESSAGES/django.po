@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-01 20:49-0300\n"
+"POT-Creation-Date: 2025-09-03 21:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,10 +37,8 @@ msgid "Author"
 msgstr "Autor"
 
 #: books/models.py:17
-#, fuzzy
-#| msgid "Author"
 msgid "Authors"
-msgstr "Autor"
+msgstr "Autores"
 
 #: books/models.py:20
 msgid "Name of Publisher"
@@ -59,10 +57,8 @@ msgid "Publisher"
 msgstr "Editorial"
 
 #: books/models.py:28
-#, fuzzy
-#| msgid "Publisher"
 msgid "Publishers"
-msgstr "Editorial"
+msgstr "Editoriales"
 
 #: books/models.py:31
 msgid "Title"
@@ -85,10 +81,8 @@ msgid "Book"
 msgstr "Libro"
 
 #: books/models.py:42
-#, fuzzy
-#| msgid "Book"
 msgid "Books"
-msgstr "Libro"
+msgstr "Libros"
 
 #: books/models.py:45
 msgid "Library Name"
@@ -116,8 +110,6 @@ msgid "Library"
 msgstr "Libreria"
 
 #: books/models.py:56
-#, fuzzy
-#| msgid "Library"
 msgid "Libraries"
 msgstr "Libreria"
 
@@ -145,17 +137,13 @@ msgstr "Perdido"
 msgid "Status"
 msgstr "Estado"
 
-#: books/models.py:74
-#, fuzzy
-#| msgid "Library Name"
-msgid "Library Book Item"
-msgstr "Nombre de la Libreria"
 
-#: books/models.py:75
-#, fuzzy
-#| msgid "Library Name"
+msgid "Library Book Item"
+msgstr "Libro en Libreria"
+
+
 msgid "Library Book Items"
-msgstr "Nombre de la Libreria"
+msgstr "Libros en Librerias"
 
 #: books/models.py:80
 msgid "Reserved Items"
@@ -186,16 +174,16 @@ msgid "Delivered"
 msgstr "Entregado"
 
 #: books/models.py:103
-#, fuzzy
-#| msgid "Confirm Reservation"
-msgid "Reservation"
+msgid "Confirm Reservation"
 msgstr "Confirme la Reserva"
 
 #: books/models.py:104
-#, fuzzy
-#| msgid "Confirm Reservation"
+msgid "Reservation"
+msgstr "Reserva"
+
 msgid "Reservations"
-msgstr "Confirme la Reserva"
+msgstr "Reservaciones"
+
 
 #: books/templates/books/search.html:7 books/templates/books/search.html:26
 msgid "Community bookstores"
@@ -246,16 +234,13 @@ msgstr "Reserve los libros seleccionados"
 msgid "Enter required information"
 msgstr "Ingrese la información requerida"
 
-#: books/templates/books/search.html:76
-msgid "Confirm Reservation"
-msgstr "Confirme la Reserva"
 
 #: books/templates/books/search.html:79
 msgid "Reservation made successfully."
 msgstr "Reserva realizada con éxito"
 
 #: books/templates/books/search.html:86
-msgid "Licensed under MIT"
+msgid "GNU General Public License"
 msgstr ""
 
 #: libraries/urls.py:24

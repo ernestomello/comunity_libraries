@@ -88,10 +88,15 @@ WSGI_APPLICATION = 'libraries.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+ 'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env.str("NAME", default='siet_fe'),
+        'USER': env.str("MYSQL_USER", default='root'),
+        'PASSWORD': env.str("MYSQL_PASSWORD", default='password'),
+        'HOST': env.str("HOST", default='localhost'),
+        'PORT': env.str("PORT", default='3306'),
     }
+
 }
 
 
@@ -138,6 +143,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = env.str("STATIC_URL",default='static/')
+
+STATIC_ROOT = '/var/www/ernestomello/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
