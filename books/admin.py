@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Author, Publisher, Book, Library, LibraryBookItem, Reservation
+from .models import Author, Publisher, Book, Library, LibraryBookItem, Reservation,Tag,City,Country
 
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
@@ -19,20 +19,20 @@ class BookAdmin(admin.ModelAdmin):
     list_display = ('title', 'get_authors', 'isbn', 'publication_date', 'publisher', 'pages')
     search_fields = ('title', 'isbn')
     list_filter = ('publication_date', 'publisher')
-
+    filter_horizontal = ('author','tags',)
     def get_authors(self, obj):
         return ", ".join([author.name for author in obj.author.all()])
     get_authors.short_description = 'Authors'
 
 @admin.register(Library)
 class LibraryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'country', 'city', 'address','email','phone')
-    search_fields = ('name', 'city', 'country')
-    list_filter = ('country','city')
+    list_display = ('name', 'city', 'address','email','phone')
+    search_fields = ('name', 'city', )
+    list_filter = ('city',)
 
 @admin.register(LibraryBookItem)
 class LibraryBookItemAdmin(admin.ModelAdmin):
-    list_display = ('book', 'library', 'library__country', 'status')
+    list_display = ('book', 'library', 'library__city', 'status')
     search_fields = ('book__title', 'library__name')
     list_filter = ('status',)
 @admin.register(Reservation)
@@ -43,3 +43,17 @@ class ReservationAdmin(admin.ModelAdmin):
     #search_fields = ('user__username', 'book_item__book__title')
     list_filter = ('status', 'created_at', 'status_date')
 
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+
+@admin.register(City)
+class CityAdmin(admin.ModelAdmin):
+    list_display = ('name', 'country')
+    search_fields = ('name', 'country__name')
+    list_filter = ('country',)
+@admin.register(Country)
+class CountryAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)

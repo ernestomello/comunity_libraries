@@ -27,6 +27,12 @@ class Publisher(models.Model):
         verbose_name = _("Publisher")
         verbose_name_plural = _("Publishers")
 
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True, verbose_name=_("Tag"))
+
+    def __str__(self):
+        return self.name
+
 class Book(models.Model):
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     author = models.ManyToManyField(Author,verbose_name=_("Author"))
@@ -34,23 +40,48 @@ class Book(models.Model):
     publication_date = models.DateField(verbose_name=_("Publication Date"))
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, verbose_name=_("Publisher"))
     pages = models.PositiveIntegerField(verbose_name=_("Number of Pages"))
+    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags"))  # Ej: ficción, no ficción, ciencia, historia
 
     def __str__(self):
-        return f"{self.title} - {self.author}"
+        authors = self.author.all()
+        if authors.count() == 0:
+            return self.title
+        elif authors.count() == 1:
+            return f"{self.title} - {authors[0].name}"
+        else:
+            return f"{self.title} - {authors[0].name} et al."
     class Meta:
         verbose_name = _("Book")
         verbose_name_plural = _("Books")
     
+class Country(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Country"))
+
+    def __str__(self):
+        return self.name
+
+class City(models.Model):
+    name = models.CharField(max_length=100, verbose_name=_("City"))
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name="cities", verbose_name=_("Country"))
+
+    def __str__(self):
+        return f"{self.name} ({self.country})"
+
+    class Meta:
+        unique_together = ('name', 'country')
+        verbose_name = _("City")
+        verbose_name_plural = _("Cities")
+
 class Library(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("Library Name"))
-    country = models.CharField(max_length=100, verbose_name=_("Country"))
-    city = models.CharField(max_length=100, verbose_name=_("City")) 
+    city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name=_("City"))
     address = models.CharField(max_length=255, verbose_name=_("Address"))
     email = models.EmailField(null=True, blank=True, verbose_name=_("Email"))
     phone = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Phone Number"))
 
     def __str__(self):
-        return f"{self.name} ({self.country}/{self.city})"
+        return f"{self.name} ({self.city})"
+
     class Meta:
         verbose_name = _("Library")
         verbose_name_plural = _("Libraries")

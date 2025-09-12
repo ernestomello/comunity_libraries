@@ -6,10 +6,21 @@ from django.views.decorators.http import require_POST
 from .models import Reservation, LibraryBookItem, Library
 from django.db.models import Q
 from django.utils import timezone
+import requests
 
 @csrf_exempt
 @require_POST
 def reserve_books(request):
+    recaptcha_response = json.loads(request.body).get('g-recaptcha-response')
+    data = {
+        'secret': '6LeUcBMlAAAAAF8KX9KX9KX9KX9KX9KX9KX9KX9',
+        'response': recaptcha_response
+    }
+    r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+    result = r.json()
+    if not result.get('success'):
+        return JsonResponse({'message': 'Captcha inválido. Intenta nuevamente.'}, status=400)
+    
     data = json.loads(request.body)
     name = data.get('name')
     email = data.get('email')
@@ -31,8 +42,7 @@ def search_books(request):
     results = []
     for item in items:
         results.append({
-            'library': item.library.name,
-            'country': item.library.country,
+            'library': item.library.__str__(),
             'address': item.library.address,
             'title': item.book.title,
             'authors': ', '.join([a.name for a in item.book.author.all()]),

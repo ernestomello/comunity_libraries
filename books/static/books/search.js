@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             <th>ISBN</th>
                             <th>Editorial</th>
                             <th>Biblioteca</th>
-                            <th>País</th>
                             <th>Dirección</th>
                             
                         </tr>
@@ -54,7 +53,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${book.isbn}</td>
                 <td>${book.publisher}</td>
                 <td>${book.library}</td>
-                <td>${book.country}</td>
                 <td>${book.address}</td>
                
             `;

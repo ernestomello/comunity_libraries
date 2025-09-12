@@ -22,7 +22,7 @@ from django.utils.translation import gettext_lazy as _
 
 admin.site.site_url = "https://drive.google.com/drive/folders/1FRfPjx0VQ8jo7fWHyRdGop45oJflX5qe?usp=sharing" #Para agregar el sitio de la ayuda de SGA Administracion
 admin.site.site_header = _("Comunity Libraries Administración")
-admin.site.site_title = _("Inventario Admin Portal")
+admin.site.site_title = _("Admin Portal")
 admin.site.index_title = _("Portal Administrativo ")   
 urlpatterns = [
     path('admin/', admin.site.urls),
