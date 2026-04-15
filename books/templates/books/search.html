@@ -73,11 +73,11 @@
                     <form id="form-reserve">
                         <input type="text" id="reserver-name" placeholder="{% trans 'Name' %}" required class="form-control mb-2" required>
                         <input type="email" id="reserver-email" placeholder="{% trans 'Email' %}" required class="form-control mb-2" required>
-                        <!-- Aquí va el captcha -->
-                        <div class="g-recaptcha mb-2" data-sitekey="TU_SITE_KEY"></div>
+                        <!-- Widget de Altcha -->
+                        <altcha-widget id="altcha-widget" challengeurl="/books/altcha/challenge/" class="mb-2"></altcha-widget>
                         <button type="submit" class="btn btn-success">{% trans "Confirm Reservation" %}</button>
                     </form>
-                    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+                    <script type="module" src="https://cdn.jsdelivr.net/npm/altcha/dist/altcha.min.js"></script>
                 </div>
                 <span id="msg-success" style="display:none;">{% trans "Reservation made successfully." %}</span>
 

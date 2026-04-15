@@ -88,15 +88,14 @@ WSGI_APPLICATION = 'libraries.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
- 'default': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': env.str("NAME", default='siet_fe'),
-        'USER': env.str("MYSQL_USER", default='root'),
-        'PASSWORD': env.str("MYSQL_PASSWORD", default='password'),
-        'HOST': env.str("HOST", default='localhost'),
-        'PORT': env.str("PORT", default='3306'),
+        'NAME': env.str("DATABASE_NAME", default='siet_fe'),
+        'USER': env.str("DATABASE_USER", default='root'),
+        'PASSWORD': env.str("DATABASE_PASSWORD", default='password'),
+        'HOST': env.str("DATABASE_HOST", default='localhost'),
+        'PORT': env.str("DATABASE_PORT", default='3306'),
     }
-
 }
 
 
@@ -142,9 +141,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = env.str("STATIC_URL",default='static/')
+STATIC_URL = env.str("STATIC_URL", default='/static/')
 
-STATIC_ROOT = '/var/www/ernestomello/static/'
+# Para PythonAnywhere, el STATIC_ROOT debe ser en el directorio del proyecto
+STATIC_ROOT = env.str("STATIC_ROOT", default=BASE_DIR / "static_collected")
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
@@ -153,3 +153,41 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuración de Altcha
+ALTCHA_HMAC_KEY = env.str("ALTCHA_HMAC_KEY", default='altcha-development-key-change-in-production')
+
+# Configuraciones adicionales para producción
+if not DEBUG:
+    # Configuraciones de seguridad para producción
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    
+    # Para PythonAnywhere HTTPS
+    # Descomenta estas líneas si usas HTTPS
+    # SECURE_SSL_REDIRECT = True
+    # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # SESSION_COOKIE_SECURE = True
+    # CSRF_COOKIE_SECURE = True
+    
+# Configuración de logging para producción
+if not DEBUG:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'file': {
+                'level': 'INFO',
+                'class': 'logging.FileHandler',
+                'filename': BASE_DIR / 'logs' / 'django.log',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['file'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+        },
+    }

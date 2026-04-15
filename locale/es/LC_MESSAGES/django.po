@@ -254,3 +254,44 @@ msgstr ""
 #: libraries/urls.py:26
 msgid "Portal Administrativo "
 msgstr ""
+
+# Altcha captcha messages
+#: books/views.py
+msgid "Missing altcha field"
+msgstr "Falta el campo del captcha"
+
+#: books/views.py
+msgid "Error decoding captcha payload"
+msgstr "Error decodificando el captcha"
+
+#: books/views.py
+msgid "Missing required captcha fields"
+msgstr "Faltan campos requeridos del captcha"
+
+#: books/views.py
+msgid "Invalid captcha. Please try again."
+msgstr "Captcha inválido. Intenta nuevamente."
+
+#: books/views.py
+msgid "Error verifying captcha"
+msgstr "Error verificando captcha"
+
+#: books/views.py
+msgid "Missing required data (name, email, codes)"
+msgstr "Faltan datos requeridos (nombre, email, códigos)"
+
+#: books/views.py
+msgid "No available items found for reservation."
+msgstr "No se encontraron ejemplares disponibles para reservar."
+
+#: books/views.py
+msgid "Reservation made successfully."
+msgstr "Reserva realizada con éxito."
+
+#: books/views.py
+msgid "Invalid JSON data"
+msgstr "Datos JSON inválidos"
+
+#: books/views.py
+msgid "Internal server error"
+msgstr "Error interno del servidor"
