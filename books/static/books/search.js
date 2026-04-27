@@ -18,77 +18,63 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.insertBefore(messageDiv, document.body.firstChild);
 
     function renderResults(books) {
-        resultsDiv.innerHTML = `
-            <div class="table-responsive">
-                <table id="books-table" class="table table-striped table-bordered display" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Estado</th>
-                            <th>Título</th>
-                            <th>Autor(es)</th>
-                            <th>ISBN</th>
-                            <th>Editorial</th>
-                            <th>Biblioteca</th>
-                            <th>Dirección</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-        `;
-        const tbody = resultsDiv.querySelector('tbody');
-        books.forEach(book => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>
-                    <input type="checkbox" class="book-check" data-code="${book.code}" ${book.is_available ? '' : 'disabled'}>
-                </td>
-                <td>${book.status}</td>
-                <td>${book.title}</td>
-                <td>${book.authors}</td>
-                <td>${book.isbn}</td>
-                <td>${book.publisher}</td>
-                <td>${book.library}</td>
-                <td>${book.address}</td>
-               
-            `;
-            tbody.appendChild(row);
-        });
-
-        // Inicializa DataTables
-        if (dataTable) {
-            dataTable.destroy();
+        console.log('renderResults called with:', books); // Debug
+        
+        if (!books || books.length === 0) {
+            resultsDiv.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">No se encontraron resultados.</div>';
+            return;
         }
-        dataTable = $('#books-table').DataTable({
-            responsive: true,
-            ordering: true,
-            language: {
-                processing: "Procesando...",
-                search: "Buscar:",
-                lengthMenu: "Mostrar _MENU_ elementos",
-                info: "Mostrando desde _START_ hasta _END_ de _TOTAL_ elementos",
-                infoEmpty: "Mostrando desde 0 hasta 0 de 0 elementos",
-                infoFiltered: "(filtrado de _MAX_ elementos en total)",
-                infoPostFix: "",
-                loadingRecords: "Cargando registros...",
-                zeroRecords: "No se encontraron registros",
-                emptyTable: "No hay datos disponibles en la tabla",
-                paginate: {
-                    first: "Primero",
-                    previous: "Anterior",
-                    next: "Siguiente",
-                    last: "Último"
-                },
-                aria: {
-                    sortAscending: ": Activar para ordenar la columna de manera ascendente",
-                    sortDescending: ": Activar para ordenar la columna de manera descendente"
-                }
-            }
+
+        // Crear grilla visual de libros con imágenes de portada
+        resultsDiv.innerHTML = '<div class="books-grid"></div>';
+        const grid = resultsDiv.querySelector('.books-grid');
+        
+        books.forEach(book => {
+            console.log('Processing book:', book); // Debug
+            
+            const bookCard = document.createElement('div');
+            bookCard.className = `book-card-item ${book.is_available ? 'available' : 'unavailable'}`;
+            
+            // Crear imagen de portada
+            const coverImageHtml = book.cover_image_url 
+                ? `<img src="${book.cover_image_url}" alt="Portada de ${book.title}" style="width: 100%; height: 100%; object-fit: cover;">` 
+                : '<div class="no-image">📚</div>';
+                
+            // Determinar clase del status para el badge
+            const statusClass = book.status.toLowerCase().replace(/\s+/g, '');
+            
+            bookCard.innerHTML = `
+                <div class="status-badge ${statusClass}">${book.status}</div>
+                
+                <div class="book-checkbox-container">
+                    <input type="checkbox" class="book-check" data-code="${book.code}" ${book.is_available ? '' : 'disabled'}>
+                </div>
+                
+                <div class="book-cover">
+                    ${coverImageHtml}
+                </div>
+                
+                <div class="book-info">
+                    <div class="book-title" title="${book.title}">${book.title}</div>
+                    <div class="book-authors">${book.authors}</div>
+                    <div class="book-publisher">${book.publisher}</div>
+                    <div class="book-details">
+                        <span><strong>ISBN:</strong> ${book.isbn}</span>
+                        <span><strong>Págs:</strong> ${book.pages}</span>
+                    </div>
+                    ${book.description ? `<div class="book-description" style="font-size: 0.8rem; color: #666; margin-top: 8px;">${book.description.substring(0, 100)}${book.description.length > 100 ? '...' : ''}</div>` : ''}
+                </div>
+                
+                <div class="library-info">
+                    <strong>${book.library}</strong><br>
+                    ${book.address}
+                </div>
+            `;
+            
+            grid.appendChild(bookCard);
         });
 
+        // Agregar event listeners para los checkboxes
         document.querySelectorAll('.book-check').forEach(cb => {
             cb.addEventListener('change', function() {
                 if (this.checked) {
@@ -96,20 +82,73 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     selectedBooks.delete(this.dataset.code);
                 }
-                reserveBtn.style.display = selectedBooks.size > 0 ? 'block' : 'none';
+                
+                updateReserveButtonAndInfo();
             });
         });
     }
+    
+    function updateReserveButtonAndInfo() {
+        if (selectedBooks.size > 0) {
+            reserveBtn.style.display = 'block';
+            
+            // Agrupar libros seleccionados por biblioteca para mostrar información
+            const selectedItems = Array.from(selectedBooks);
+            const librariesInfo = {};
+            
+            // Buscar información de bibliotecas de los libros seleccionados
+            document.querySelectorAll('.book-check:checked').forEach(checkbox => {
+                const bookCard = checkbox.closest('.book-card-item');
+                const libraryInfo = bookCard.querySelector('.library-info strong').textContent;
+                
+                if (!librariesInfo[libraryInfo]) {
+                    librariesInfo[libraryInfo] = 0;
+                }
+                librariesInfo[libraryInfo]++;
+            });
+            
+            // Actualizar el texto del botón con información de bibliotecas
+            const libraryCount = Object.keys(librariesInfo).length;
+            let buttonText = `Reservar ${selectedBooks.size} libro${selectedBooks.size > 1 ? 's' : ''}`;
+            
+            if (libraryCount > 1) {
+                buttonText += ` (${libraryCount} bibliotecas)`;
+                reserveBtn.innerHTML = `
+                    ${buttonText}<br>
+                    <small style="font-size: 0.8em; opacity: 0.9;">Se crearán ${libraryCount} reservas separadas</small>
+                `;
+                reserveBtn.style.height = 'auto';
+                reserveBtn.style.padding = '12px 24px';
+            } else {
+                reserveBtn.textContent = buttonText;
+                reserveBtn.style.height = '';
+                reserveBtn.style.padding = '';
+            }
+        } else {
+            reserveBtn.style.display = 'none';
+        }
+    }
+
+    
 
     searchInput.addEventListener('input', function() {
         const query = searchInput.value;
+        console.log('Searching for:', query); // Debug
         fetch(`/books/search/?q=${encodeURIComponent(query)}`)
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status); // Debug
+                return response.json();
+            })
             .then(data => {
+                console.log('Received data:', data); // Debug
+                console.log('Number of results:', data.results ? data.results.length : 0); // Debug
                 renderResults(data.results);
                 selectedBooks.clear();
                 reserveBtn.style.display = 'none';
                 reserveForm.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error in search:', error); // Debug
             });
     });
 
@@ -193,7 +232,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data => {
-            // Limpiar todo
+            console.log('Reservation response:', data); // Debug
+            
+            // Limpiar formulario y selecciones
             reserveForm.style.display = 'none';
             selectedBooks.clear();
             reserveBtn.style.display = 'none';
@@ -203,12 +244,46 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('reserver-email').value = '';
             altchaWidget.reset();
             altchaSolutionValue = null; // Limpiar la solución almacenada
-            // Mostrar mensaje de éxito
-            messageDiv.textContent = document.getElementById('msg-success').textContent;
+            
+            // Crear mensaje detallado de reservas
+            let successHTML = `<div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb;">`;
+            successHTML += `<h4 style="margin: 0 0 10px 0; color: #155724;">✅ ${data.message}</h4>`;
+            
+            if (data.reservations && data.reservations.length > 0) {
+                if (data.reservations.length > 1) {
+                    successHTML += `<div style="margin-top: 10px;"><strong>Detalles de las reservas creadas:</strong></div>`;
+                }
+                
+                data.reservations.forEach((reservation, index) => {
+                    successHTML += `
+                        <div style="background: rgba(255,255,255,0.7); padding: 10px; border-radius: 5px; margin: 8px 0; border-left: 4px solid #28a745;">
+                            <strong>📍 ${reservation.library_name}</strong><br>
+                            <small style="color: #666;">${reservation.library_address}</small><br>
+                            <span style="color: #155724; font-weight: 500;">📚 ${reservation.items_count} libro${reservation.items_count > 1 ? 's' : ''} reservado${reservation.items_count > 1 ? 's' : ''}</span><br>
+                            <small style="color: #666;">ID de reserva: #${reservation.reservation_id}</small>
+                        </div>
+                    `;
+                });
+                
+                successHTML += `<div style="margin-top: 15px; font-style: italic; color: #0c5d2c;">
+                    💡 Contacta con cada biblioteca por separado para organizar la recolección de tus libros.
+                </div>`;
+            }
+            
+            successHTML += `</div>`;
+            
+            // Mostrar el mensaje detallado
+            messageDiv.innerHTML = successHTML;
             messageDiv.style.display = 'block';
+            messageDiv.style.background = 'transparent';
+            messageDiv.style.border = 'none';
+            messageDiv.style.padding = '0';
+            messageDiv.scrollIntoView({ behavior: 'smooth' });
+            
+            // Ocultar mensaje después de un tiempo más largo debido al contenido adicional
             setTimeout(() => {
                 messageDiv.style.display = 'none';
-            }, 4000);
+            }, 8000);
         })
         .catch(error => {
             console.error('Error:', error);

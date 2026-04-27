@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from environs import Env
-
+import os
+from pathlib import Path
 
 env = Env()
 env.read_env()
@@ -40,6 +41,16 @@ CSRF_ALLOWED_ORIGINS = env.list("CSRF_ALLOWED_ORIGINS",default=["http://localhos
 #SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT",default=False)
 CORS_ORIGINS_WHITELIST = env.list("CORS_ORIGINS_WHITELIST",default=["http://localhost"]) 
 
+# configuración de servidor de correo para notificaciones
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', default='tu-biblioteca@gmail.com')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', default='tu-contraseña-de-aplicacion')
+DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', default='Sistema de Bibliotecas <tu-biblioteca@gmail.com>')
+EMAIL_TIMEOUT = 60  # Timeout para conexiones SMTP
 
 # Application definition
 
@@ -157,6 +168,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Configuración de Altcha
 ALTCHA_HMAC_KEY = env.str("ALTCHA_HMAC_KEY", default='altcha-development-key-change-in-production')
 
+# URL para acceder a los archivos desde el navegador
+MEDIA_URL = 'media/'
+
+# Ruta física en el disco duro
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Configuraciones adicionales para producción
 if not DEBUG:
     # Configuraciones de seguridad para producción
@@ -173,21 +190,42 @@ if not DEBUG:
     
 # Configuración de logging para producción
 if not DEBUG:
+    # Crear directorio de logs si no existe
+    import os
+    log_dir = BASE_DIR / 'logs'
+    os.makedirs(log_dir, exist_ok=True)
+    
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+                'style': '{',
+            },
+        },
         'handlers': {
             'file': {
                 'level': 'INFO',
                 'class': 'logging.FileHandler',
-                'filename': BASE_DIR / 'logs' / 'django.log',
+                'filename': log_dir / 'django.log',
+                'formatter': 'verbose',
             },
+            'console': {
+                'level': 'INFO',
+                'class': 'logging.StreamHandler',
+                'formatter': 'verbose',
+            },
+        },
+        'root': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
         },
         'loggers': {
             'django': {
-                'handlers': ['file'],
+                'handlers': ['console', 'file'],
                 'level': 'INFO',
-                'propagate': True,
+                'propagate': False,
             },
         },
     }

@@ -19,6 +19,8 @@ from django.contrib import admin
 from django.urls import path, include
 from books import views
 from django.utils.translation import gettext_lazy as _
+from django.conf.urls.static import static
+from django.conf import settings
 
 admin.site.site_url = "" #Para agregar el sitio de la ayuda de SGA Administracion
 admin.site.site_header = _("Comunity Libraries Administración")
@@ -28,4 +30,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.search_page, name='home'), # Página por defecto
     path('books/', include('books.urls')),     
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

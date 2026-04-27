@@ -33,8 +33,10 @@ echo "4. Configuración de variables de entorno..."
 echo "IMPORTANTE: Debes crear el archivo .env manualmente con la configuración de producción"
 echo "Usa .env.production.example como plantilla"
 
-echo "5. Creando directorio para archivos estáticos..."
+echo "5. Creando directorios necesarios..."
 mkdir -p static_collected
+mkdir -p logs
+mkdir -p static
 
 echo "6. Recolectando archivos estáticos..."
 python manage.py collectstatic --noinput

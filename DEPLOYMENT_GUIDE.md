@@ -48,6 +48,11 @@ En el dashboard de PythonAnywhere:
 ```bash
 cd ~/comunity_libraries
 source venv/bin/activate
+mkdir -p logs  # Crear directorio para logs
+
+# Si tienes problemas con migraciones, ejecuta primero:
+python manage.py shell < migration_data_fix.py
+
 python manage.py migrate
 python manage.py setup_groups
 python manage.py createsuperuser
@@ -149,3 +154,12 @@ git pull origin main
 - Revisa los logs de error en el dashboard
 - Verifica que DEBUG=False en producción
 - Asegúrate de que ALLOWED_HOSTS incluya tu dominio
+
+### Problema: IntegrityError durante migraciones
+```bash
+cd ~/comunity_libraries
+source venv/bin/activate
+bash fix_migration.sh
+```
+
+Este problema ocurre cuando hay conflictos de claves foráneas en la base de datos. El script automatizado lo solucionará.

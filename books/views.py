@@ -87,15 +87,64 @@ def reserve_books(request):
         if not name or not email or not codes:
             return JsonResponse({'message': _('Missing required data (name, email, codes)')}, status=400)
         
-        items = LibraryBookItem.objects.filter(code__in=codes, status='available')
+        # Obtener elementos disponibles
+        items = LibraryBookItem.objects.filter(code__in=codes, status='available').select_related('library')
         if not items.exists():
             return JsonResponse({'message': _('No available items found for reservation.')}, status=400)
         
-        reservation = Reservation.objects.create(name=name, email=email)
-        reservation.items.set(items)
-        items.update(status='reserved')
+        # Agrupar elementos por biblioteca
+        from itertools import groupby
+        from operator import attrgetter
         
-        return JsonResponse({'message': _('Reservation made successfully.')})
+        # Ordenar por biblioteca para poder agrupar
+        items_by_library = {}
+        for item in items:
+            library_id = item.library.id
+            if library_id not in items_by_library:
+                items_by_library[library_id] = {
+                    'library': item.library,
+                    'items': []
+                }
+            items_by_library[library_id]['items'].append(item)
+        
+        # Crear una reserva por cada biblioteca
+        reservations_created = []
+        for library_data in items_by_library.values():
+            library = library_data['library']
+            library_items = library_data['items']
+            
+            # Crear reserva para esta biblioteca (incluir library field)
+            reservation = Reservation.objects.create(
+                name=name, 
+                email=email,
+                library=library  # ¡Esta línea faltaba!
+            )
+            reservation.items.set(library_items)
+            
+            # Actualizar estado de los elementos
+            LibraryBookItem.objects.filter(id__in=[item.id for item in library_items]).update(status='reserved')
+            
+            reservations_created.append({
+                'library_name': library.name,
+                'library_address': library.address,
+                'items_count': len(library_items),
+                'reservation_id': reservation.id
+            })
+        
+        # Preparar mensaje de respuesta
+        if len(reservations_created) == 1:
+            message = _('Reservation made successfully for %(library)s.') % {'library': reservations_created[0]['library_name']}
+        else:
+            libraries_list = ', '.join([res['library_name'] for res in reservations_created])
+            message = _('%(count)d reservations created successfully for: %(libraries)s.') % {
+                'count': len(reservations_created), 
+                'libraries': libraries_list
+            }
+        
+        return JsonResponse({
+            'message': message,
+            'reservations': reservations_created
+        })
         
     except json.JSONDecodeError:
         return JsonResponse({'message': _('Invalid JSON data')}, status=400)
@@ -105,10 +154,18 @@ def reserve_books(request):
 def search_books(request):
     query = request.GET.get('q', '')
     items = LibraryBookItem.objects.filter(
-        Q(book__title__icontains=query) | Q(book__isbn__icontains=query)
-    ).select_related('book', 'library', 'book__publisher').prefetch_related('book__author')
+        Q(book__title__icontains=query) | 
+        Q(book__isbn__icontains=query) |
+        Q(book__author__name__icontains=query) |
+        Q(book__publisher__name__icontains=query)
+    ).distinct().select_related('book', 'library', 'book__publisher').prefetch_related('book__author')
     results = []
     for item in items:
+        # Construir URL de la imagen de portada
+        cover_image_url = None
+        if item.book.cover_image:
+            cover_image_url = item.book.cover_image.url
+            
         results.append({
             'library': item.library.__str__(),
             'address': item.library.address,
@@ -119,6 +176,9 @@ def search_books(request):
             'code': item.code,
             'status': item.get_status_display(),
             'is_available': item.status == 'available',
+            'cover_image_url': cover_image_url,
+            'description': item.book.description or '',
+            'pages': item.book.pages,
         })
     return JsonResponse({'results': results})
 

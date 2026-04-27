@@ -1,8 +1,12 @@
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.db import transaction
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django.template.loader import render_to_string
 
 # Create your models here.
 
@@ -43,9 +47,13 @@ class Book(models.Model):
     publication_date = models.DateField(verbose_name=_("Publication Date"))
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, verbose_name=_("Publisher"))
     pages = models.PositiveIntegerField(verbose_name=_("Number of Pages"))
-    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags"))  # Ej: ficción, no ficción, ciencia, historia
-
-    # Campos para sistema de aprobación
+    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags"))  # Ex: fiction, non-fiction, science, history
+    # Additional book fields
+    language = models.CharField(max_length=50, default='English', verbose_name=_("Language"))
+    edition = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Edition"))
+    description = models.TextField(blank=True, verbose_name=_("Description/Summary"))
+    cover_image = models.ImageField(upload_to='book_covers/', null=True, blank=True, verbose_name=_("Cover Image"))
+    # Fields for approval system
     created_by = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
@@ -126,6 +134,10 @@ class Book(models.Model):
         verbose_name = _("Book")
         verbose_name_plural = _("Books")
         ordering = ['-created_at']
+        # Define custom permission here:
+        permissions = [
+            ("can_approve_book", "Can approve or reject books"),
+        ]
     
 class Country(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name=_("Country"))
@@ -164,26 +176,26 @@ class UserProfile(models.Model):
     Extende el modelo User para asignar bibliotecas a usuarios
     """
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    assigned_library = models.ForeignKey(
+    assigned_libraries = models.ManyToManyField(
         Library, 
-        on_delete=models.SET_NULL, 
-        null=True, 
         blank=True, 
-        verbose_name=_("Assigned Library"),
-        help_text=_("Library assigned to this user for managing book items")
+        verbose_name=_("Assigned Libraries"),
+        help_text=_("Libraries assigned to this user for managing book items")
     )
 
     def __str__(self):
-        return f"{self.user.username} - {self.assigned_library.name if self.assigned_library else 'No library assigned'}"
+        count = self.assigned_libraries.count()
+        return f"{self.user.username} - {count} " + _('assigned libraries')
 
     class Meta:
         verbose_name = _("User Profile")
         verbose_name_plural = _("User Profiles")
+        
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     """
-    Crea automáticamente un perfil cuando se crea un usuario
+    Automatically create a profile when a user is created
     """
     if created:
         UserProfile.objects.create(user=instance)
@@ -191,7 +203,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     """
-    Guarda el perfil cuando se guarda el usuario
+    Save the profile when the user is saved
     """
     if hasattr(instance, 'profile'):
         instance.profile.save()
@@ -199,17 +211,17 @@ def save_user_profile(sender, instance, **kwargs):
 class LibraryBookItem(models.Model):
     library = models.ForeignKey(Library, on_delete=models.CASCADE, verbose_name=_("Library"))
     book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name=_("Book"))
-    code = models.CharField(max_length=50, unique=True, verbose_name=_("Inventary Code"))  # Ej: código de inventario
+    code = models.CharField(max_length=50, unique=True, verbose_name=_("Inventory Code"))  # Inventory code
     STATUS_CHOICES = [
         ('available', _("Available")),
         ('loaned', _("Loaned")),
         ('reserved', _("Reserved")),
         ('lost', _("Lost")),
-        # Agrega más estados si lo necesitas
+        # Add more statuses if needed
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available', verbose_name=_("Status"))
     
-    # Campos de auditoría
+    # Audit fields
     created_by = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
@@ -217,28 +229,28 @@ class LibraryBookItem(models.Model):
         verbose_name=_("Created by")
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
+    def __str__(self):
+        return f"{self.book.title} ({self.code}) en {self.library.name} - {self.get_status_display()}"
 
+    # Inside LibraryBookItem class in models.py
     def clean(self):
-        """Validaciones personalizadas"""
         from django.core.exceptions import ValidationError
         
-        # Verificar que el libro esté aprobado
         if self.book and not self.book.can_be_used_in_library_items():
             raise ValidationError(_("Only approved books can be added to library inventory"))
         
-        # Verificar que el usuario pueda agregar items a esta biblioteca
-        if hasattr(self, 'created_by') and self.created_by:
+        # Only validate if we already have the user (avoids error in initial form)
+        if self.created_by and not self.created_by.is_superuser:
             user_profile = getattr(self.created_by, 'profile', None)
-            if user_profile and user_profile.assigned_library and user_profile.assigned_library != self.library:
-                raise ValidationError(_("You can only add items to your assigned library"))
-
-    def __str__(self):
-        return f"{self.book.title} ({self.code}) en {self.library.name} - {self.get_status_display()}"
-    
-    class Meta:
-        verbose_name = _("Library Book Item")
-        verbose_name_plural = _("Library Book Items")
-        ordering = ['-created_at']   
+            if user_profile and not user_profile.assigned_libraries.filter(id=self.library.id).exists():
+                raise ValidationError(_("You can only add items to your assigned libraries"))
+        def __str__(self):
+            return f"{self.book.title} ({self.code}) en {self.library.name} - {self.get_status_display()}"
+        
+        class Meta:
+            verbose_name = _("Library Book Item")
+            verbose_name_plural = _("Library Book Items")
+            ordering = ['-created_at']   
     
 class Reservation(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("Name"))
@@ -248,23 +260,102 @@ class Reservation(models.Model):
     status_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Status Date"))
     STATUS_CHOICES = [
         ('pending', _("Pending")),
+        ('ready', _("Ready for Pickup")),
         ('completed', _("Completed")),
         ('canceled', _("Canceled")),
         ('delivered', _("Delivered")),
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name=_("Status"))
+    library = models.ForeignKey(Library, on_delete=models.CASCADE, verbose_name=_("Library"))
+
+    def send_notification(self):
+        """
+        Send email to user with copy to library.
+        All texts are in English and marked for translation.
+        """
+        # Get library from first item
+        first_item = self.items.first()
+        if not first_item:
+            return
+
+        # Use the library from the reservation (not from items)
+        library = self.library
+        library_email = library.email or settings.DEFAULT_FROM_EMAIL
+        
+        # Translatable subject
+        subject = _("[%(lib_name)s] Reservation Update: %(status)s") % {
+            'lib_name': library.name,
+            'status': self.get_status_display()
+        }
+
+        # Message dictionary in English (marked for translation)
+        messages = {
+            'pending': _("Your reservation at %(lib_name)s has been received and is being processed.") % {'lib_name': library.name},
+            'ready': _("Your books are ready for pickup! Please visit us at: %(address)s, %(city)s.") % {
+                'address': library.address, 
+                'city': library.city.name
+            },
+            'delivered': _("The books have been successfully delivered. Enjoy your reading!"),
+            'canceled': _("Your reservation has been canceled."),
+            'completed': _("The books have been returned. Thank you for using our library!"),
+        }
+
+        body_text = messages.get(self.status, _("Your reservation status has changed to: %(status)s") % {'status': self.get_status_display()})
+
+        try:
+            email = EmailMessage(
+                subject=subject,
+                body=body_text,
+                from_email=f"{library.name} <{settings.EMAIL_HOST_USER}>",
+                to=[self.email],
+                reply_to=[library_email],  # User replies go to library
+                cc=[library_email],       # Library gets copy of every movement
+            )
+            # Don't use fail_silently=True during development/debugging
+            email.send(fail_silently=False)
+            print(f"✅ Email sent successfully to {self.email} for reservation #{self.id}")
+        except Exception as e:
+            # Log the error for debugging
+            print(f"❌ Failed to send email to {self.email} for reservation #{self.id}: {str(e)}")
+            # In production, consider using proper logging:
+            # import logging
+            # logger = logging.getLogger(__name__)
+            # logger.error(f"Failed to send email: {str(e)}")
 
     def save(self, *args, **kwargs):
-        if self.pk:
-            orig = Reservation.objects.get(pk=self.pk)
-            if orig.status != self.status:
+        with transaction.atomic():
+            is_new = self.pk is None
+            status_changed = False
+            
+            if not is_new:
+                old_instance = Reservation.objects.get(pk=self.pk)
+                if old_instance.status != self.status:
+                    status_changed = True
+                    self.status_date = timezone.now()
+            else:
                 self.status_date = timezone.now()
-        else:
-            self.status_date = timezone.now()
-        super().save(*args, **kwargs)
+                status_changed = True # Notificar creación
 
+            # Guardamos la reserva
+            super().save(*args, **kwargs)
+
+            # Actualización masiva de estados de los libros (LibraryBookItem)
+            if self.status in ['pending', 'ready']:
+                self.items.all().update(status='reserved')
+            elif self.status == 'delivered':
+                self.items.all().update(status='loaned')
+            elif self.status in ['completed', 'canceled']:
+                self.items.all().update(status='available')
+
+            # Send email if there was a relevant change
+            if status_changed:
+                # Use transaction.on_commit to ensure email
+                # is sent only if database confirmed the save
+                transaction.on_commit(lambda: self.send_notification())
+    
     def __str__(self):
         return f"{self.name} ({self.email})"
+        
     class Meta:
         verbose_name = _("Reservation")
         verbose_name_plural = _("Reservations")

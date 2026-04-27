@@ -1,22 +1,22 @@
 # WSGI configuration for PythonAnywhere
-# Guarda este archivo como wsgi_pythonanywhere.py y úsalo en la configuración web
+# Copia este contenido en el archivo WSGI de tu aplicación web en PythonAnywhere
+# Asegúrate de cambiar 'ernestomello' por tu usuario de PythonAnywhere
 
 import os
 import sys
 
 # Agregar el directorio del proyecto al path
-path = '/home/TU_USUARIO_PYTHONANYWHERE/comunity_libraries'  # CAMBIA TU_USUARIO_PYTHONANYWHERE
+path = '/home/ernestomello/comunity_libraries'  # CAMBIA 'ernestomello' por tu usuario
 if path not in sys.path:
-    sys.path.append(path)
+    sys.path.insert(0, path)
 
-# Activar el entorno virtual
-activate_this = '/home/TU_USUARIO_PYTHONANYWHERE/comunity_libraries/venv/bin/activate_this.py'  # CAMBIA TU_USUARIO_PYTHONANYWHERE
-if os.path.exists(activate_this):
-    with open(activate_this) as file_:
-        exec(file_.read(), dict(__file__=activate_this))
+# Agregar el entorno virtual al path
+venv_path = '/home/ernestomello/comunity_libraries/venv/lib/python3.10/site-packages'  # CAMBIA 'ernestomello'
+if venv_path not in sys.path:
+    sys.path.insert(0, venv_path)
 
 # Configurar la variable de entorno de Django
-os.environ['DJANGO_SETTINGS_MODULE'] = 'libraries.settings'
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'libraries.settings')
 
 # Importar la aplicación Django
 from django.core.wsgi import get_wsgi_application

@@ -5,8 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <title>{% trans "Community bookstores" %}</title>
-    <link rel="stylesheet" href="{% static 'books/styles.css' %}">
-    <script src="{% static 'books/search.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'books/styles.css' %}?v={{ now|date:'U' }}">
+    <script src="{% static 'books/search.js' %}?v={{ now|date:'U' }}"></script>
     <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css"> -->
     <link rel="stylesheet" href="{% static 'books/datatables/jquery.dataTables.min.css' %}">
     <script src="{% static 'books/jquery/jquery-3.7.1.min.js' %}"></script>
@@ -64,7 +64,7 @@
 
                 <div class="search-container bg-white rounded shadow p-4">
                     <h2 class="mb-4">{% trans "Search in Community bookstores" %}</h2>
-                    <input type="text" id="search" placeholder="{% trans 'Search by title or ISBN...' %}" autocomplete="off" class="form-control mb-3">
+                    <input type="text" id="search" placeholder="{% trans 'Search by title, author, publisher or ISBN...' %}" autocomplete="off" class="form-control mb-3">
                     <div id="results"></div>
                     <button id="reserve-btn" class="btn btn-primary mt-3" style="display:none;">{% trans "Reserve selected books" %}</button>
                 </div>
