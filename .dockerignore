@@ -1,0 +1,146 @@
+# Archivos de Git
+.git
+.gitignore
+.gitattributes
+
+# Entornos virtuales
+.venv
+.venv5.2
+venv
+env
+ENV
+
+# Archivos de configuración local
+.env
+*.env
+.env.local
+.env.development
+.env.production
+
+# Archivos de VS Code
+.vscode/
+*.code-workspace
+
+# Archivos de PyCharm
+.idea/
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing
+.tox/
+.coverage
+.pytest_cache/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Base de datos local (SQLite)
+*.sqlite3
+db.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Archivos estáticos recopilados
+static_collected/
+staticfiles/
+
+# Archivos temporales del sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Archivos de respaldo
+*.bak
+*.backup
+*.old
+*.tmp
+
+# Docker files (no necesarios en build)
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentación de desarrollo
+*.md
+docs/
+
+# Scripts de desarrollo
+*.sh
+diagnose.sh
+fix_migration.sh
+install_pythonanywhere.sh
+quickfix.sh
+migration_data_fix.py
+wsgi_pythonanywhere.py
+
+# Archivos de requirements (se copian explícitamente)
+requirements*.txt
+
+# Node modules si existe
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

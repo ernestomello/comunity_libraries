@@ -1,0 +1,13 @@
+# Archivos temporales SSL
+ssl-setup.log
+*.pem
+*.key
+*.crt
+
+# Archivos de configuración local
+.env.backup
+docker/nginx/default.conf.backup
+
+# Logs de setup
+setup.log
+ssl-setup.log

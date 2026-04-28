@@ -26,10 +26,12 @@ admin.site.site_url = "" #Para agregar el sitio de la ayuda de SGA Administracio
 admin.site.site_header = _("Comunity Libraries Administración")
 admin.site.site_title = _("Admin Portal")
 admin.site.index_title = _("Admin Portal")   
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.search_page, name='home'), # Página por defecto
     path('books/', include('books.urls')),     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# if settings.DEBUG:
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
