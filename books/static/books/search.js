@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Variables globales
     let selectedBooks = [];
     let searchTimeout;
+    let altchaSolutionValue = null; // Variable para almacenar la solución ALTCHA
 
     
     
@@ -297,10 +298,30 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('reserver-name').value = '';
         document.getElementById('reserver-email').value = '';
         
-        // Reset Altcha widget
+        // Reset Altcha widget y variable
         const altchaWidget = document.getElementById('altcha-widget');
         if (altchaWidget) {
             altchaWidget.reset();
+            altchaSolutionValue = null; // Limpiar la solución almacenada
+            
+            // Configurar eventos del widget ALTCHA
+            setTimeout(() => {
+                altchaWidget.addEventListener('verified', (e) => {
+                    // Almacenar la solución cuando el widget es verificado
+                    altchaSolutionValue = e.detail && e.detail.payload ? e.detail.payload : null;
+                    console.log('ALTCHA verified, solution stored:', !!altchaSolutionValue);
+                });
+                
+                altchaWidget.addEventListener('error', (e) => {
+                    console.error('Altcha widget error:', e.detail);
+                    altchaSolutionValue = null;
+                });
+                
+                altchaWidget.addEventListener('reset', (e) => {
+                    altchaSolutionValue = null;
+                    console.log('ALTCHA reset, solution cleared');
+                });
+            }, 100);
         }
     }
 
@@ -317,6 +338,13 @@ document.addEventListener('DOMContentLoaded', function() {
             card.classList.remove('selected');
         });
         
+        // Limpiar ALTCHA
+        const altchaWidget = document.getElementById('altcha-widget');
+        if (altchaWidget) {
+            altchaWidget.reset();
+        }
+        altchaSolutionValue = null;
+        
         updateSelectedCount();
         toggleReserveButton();
     }
@@ -327,14 +355,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const name = document.getElementById('reserver-name').value.trim();
         const email = document.getElementById('reserver-email').value.trim();
-        const altchaWidget = document.getElementById('altcha-widget');
         
         if (!name || !email) {
             alert('Por favor completa nombre y email.');
             return;
         }
 
-        if (!altchaWidget || !altchaWidget.value) {
+        // Verificar que el captcha ALTCHA esté completado
+        if (!altchaSolutionValue) {
             alert('Por favor completa el captcha de verificación.');
             return;
         }
@@ -349,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
             name: name,
             email: email,
             codes: selectedBooks,
-            altcha: altchaWidget.value
+            altcha: altchaSolutionValue
         };
 
         fetch('/books/reserve/', {
@@ -391,6 +419,13 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error:', error);
             alert('Error al procesar la reserva: ' + (error.message || 'Inténtalo de nuevo.'));
+            
+            // En caso de error, limpiar ALTCHA también
+            const altchaWidget = document.getElementById('altcha-widget');
+            if (altchaWidget) {
+                altchaWidget.reset();
+            }
+            altchaSolutionValue = null;
         })
         .finally(() => {
             // Rehabilitar botón
@@ -636,146 +671,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
-    reserveBtn.addEventListener('click', function() {
-        reserveForm.style.display = 'block';
-        
-        // Configurar eventos del widget
-        setTimeout(() => {
-            const widget = document.getElementById('altcha-widget');
-            
-            widget.addEventListener('statechange', (e) => {
-                // Widget state changed
-            });
-            
-            widget.addEventListener('verified', (e) => {
-                // El widget devuelve un objeto con la propiedad 'payload'
-                altchaSolutionValue = e.detail && e.detail.payload ? e.detail.payload : null;
-            });
-            
-            widget.addEventListener('error', (e) => {
-                console.error('Altcha widget error:', e.detail);
-            });
-        }, 100);
-    });
+    // Event listener duplicado eliminado - ahora se maneja correctamente en showReservationForm
 
-    formReserve.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.getElementById('reserver-name').value;
-        const email = document.getElementById('reserver-email').value;
-        
-        // Obtener la solución de Altcha
-        const altchaWidget = document.getElementById('altcha-widget');
-        
-        // Usar la solución almacenada primero, luego intentar obtenerla del widget
-        let altchaSolution = altchaSolutionValue;
-        
-        if (!altchaSolution) {
-            // Si no tenemos la solución almacenada, intentar obtenerla directamente
-            if (altchaWidget.value) {
-                altchaSolution = altchaWidget.value;
-            } else {
-                // Buscar en inputs hidden dentro del widget
-                const hiddenInput = altchaWidget.querySelector('input[name="altcha"]');
-                altchaSolution = hiddenInput ? hiddenInput.value : null;
-            }
-        }
-        
-        if (!altchaSolution) {
-            alert('Please complete the captcha.');
-            return;
-        }
-        
-        fetch('/books/reserve/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                name: name,
-                email: email,
-                codes: Array.from(selectedBooks),
-                altcha: altchaSolution
-            })
-        })
-        .then(response => {
-            // Verificar si la respuesta es JSON válida
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                return response.text().then(text => {
-                    console.error('Server returned non-JSON response:', text);
-                    throw new Error('Server returned invalid response');
-                });
-            }
-            
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.message || 'Reservation error');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Reservation response:', data); // Debug
-            
-            // Limpiar formulario y selecciones
-            reserveForm.style.display = 'none';
-            selectedBooks.clear();
-            reserveBtn.style.display = 'none';
-            searchInput.value = '';
-            resultsDiv.innerHTML = '';
-            document.getElementById('reserver-name').value = '';
-            document.getElementById('reserver-email').value = '';
-            altchaWidget.reset();
-            altchaSolutionValue = null; // Limpiar la solución almacenada
-            
-            // Crear mensaje detallado de reservas
-            let successHTML = `<div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb;">`;
-            successHTML += `<h4 style="margin: 0 0 10px 0; color: #155724;">✅ ${data.message}</h4>`;
-            
-            if (data.reservations && data.reservations.length > 0) {
-                if (data.reservations.length > 1) {
-                    successHTML += `<div style="margin-top: 10px;"><strong>Detalles de las reservas creadas:</strong></div>`;
-                }
-                
-                data.reservations.forEach((reservation, index) => {
-                    successHTML += `
-                        <div style="background: rgba(255,255,255,0.7); padding: 10px; border-radius: 5px; margin: 8px 0; border-left: 4px solid #28a745;">
-                            <strong>📍 ${reservation.library_name}</strong><br>
-                            <small style="color: #666;">${reservation.library_address}</small><br>
-                            <span style="color: #155724; font-weight: 500;">📚 ${reservation.items_count} libro${reservation.items_count > 1 ? 's' : ''} reservado${reservation.items_count > 1 ? 's' : ''}</span><br>
-                            <small style="color: #666;">ID de reserva: #${reservation.reservation_id}</small>
-                        </div>
-                    `;
-                });
-                
-                successHTML += `<div style="margin-top: 15px; font-style: italic; color: #0c5d2c;">
-                    💡 Contacta con cada biblioteca por separado para organizar la recolección de tus libros.
-                </div>`;
-            }
-            
-            successHTML += `</div>`;
-            
-            // Mostrar el mensaje detallado
-            messageDiv.innerHTML = successHTML;
-            messageDiv.style.display = 'block';
-            messageDiv.style.background = 'transparent';
-            messageDiv.style.border = 'none';
-            messageDiv.style.padding = '0';
-            messageDiv.scrollIntoView({ behavior: 'smooth' });
-            
-            // Ocultar mensaje después de un tiempo más largo debido al contenido adicional
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 8000);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error processing reservation: ' + error.message);
-            altchaWidget.reset();
-            altchaSolutionValue = null; // Limpiar la solución almacenada
-        });
-    });
+    // Event listener duplicado eliminado - se maneja en handleReservation función
 
     function getCookie(name) {
         let cookieValue = null;
