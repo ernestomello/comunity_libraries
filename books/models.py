@@ -226,9 +226,16 @@ class LibraryBookItem(models.Model):
         User, 
         on_delete=models.CASCADE, 
         related_name='library_items_created',
-        verbose_name=_("Created by")
+        verbose_name=_("Created by"),
+        null=True, 
+        blank=True
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
+    class Meta:
+        verbose_name = _("Library Book Item")
+        verbose_name_plural = _("Library Book Items")
+        ordering = ['-created_at']
+        
     def __str__(self):
         return f"{self.book.title} ({self.code}) en {self.library.name} - {self.get_status_display()}"
 

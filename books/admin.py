@@ -103,10 +103,16 @@ class LibraryAdmin(admin.ModelAdmin):
 
 @admin.register(LibraryBookItem)
 class LibraryBookItemAdmin(admin.ModelAdmin):
-    list_display = ('book', 'library', 'code', 'status', 'created_by', 'created_at')
+    list_display = ('book', 'library', 'code', 'status', 'get_created_by', 'created_at')
     search_fields = ('book__title', 'library__name', 'code')
     list_filter = ('status', 'library', 'created_at')
-    readonly_fields = ('created_by', 'created_at')
+    readonly_fields = ('created_at',)
+    exclude = ('created_by',)  # Excluir del formulario ya que se asigna automáticamente
+    
+    def get_created_by(self, obj):
+        """Mostrar el usuario que creó el ítem o 'Unknown' si no hay"""
+        return obj.created_by.username if obj.created_by else 'Unknown'
+    get_created_by.short_description = 'Created by'
     
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -133,9 +139,10 @@ class LibraryBookItemAdmin(admin.ModelAdmin):
             kwargs["queryset"] = Book.objects.filter(approval_status='approved')
             
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+        
     def save_model(self, request, obj, form, change):
-        # If object is new (not an edit), assign creator
-        if not change: 
+        # Asignar siempre el usuario actual al campo created_by
+        if not obj.created_by:
             obj.created_by = request.user
         
         # Call original method to finish saving

@@ -30,9 +30,14 @@ SECRET_KEY = env.str("SECRET_KEY",default='django-insecure-ite81e+mgtqtc7z9#sk8=
 #SECRET_KEY = 'django-insecure-ite81e+mgtqtc7z9#sk8=k^s43hnq#p7p1v9!oo^s$!2fk7hl4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG",default=True)
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS",default=['localhost', ])
+# Para desarrollo local, permitir tanto localhost como 127.0.0.1
+if DEBUG:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '127.0.0.1:8000', '*']
+else:
+    ALLOWED_HOSTS = env.list("ALLOWED_HOSTS",default=['localhost'])
 
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS",default=["http://localhost"])
 CSRF_ALLOWED_ORIGINS = env.list("CSRF_ALLOWED_ORIGINS",default=["http://localhost"]) 

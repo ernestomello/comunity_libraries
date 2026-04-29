@@ -21,6 +21,7 @@ from books import views
 from django.utils.translation import gettext_lazy as _
 from django.conf.urls.static import static
 from django.conf import settings
+from django.views.generic import RedirectView
 
 admin.site.site_url = "" #Para agregar el sitio de la ayuda de SGA Administracion
 admin.site.site_header = _("Comunity Libraries Administración")
@@ -30,8 +31,11 @@ admin.site.index_title = _("Admin Portal")
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.search_page, name='home'), # Página por defecto
-    path('books/', include('books.urls')),     
+    path('books/', include('books.urls')),
+    # Ruta específica para el favicon
+    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-# if settings.DEBUG:
-#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Servir archivos estáticos en modo DEBUG
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT or 'static')

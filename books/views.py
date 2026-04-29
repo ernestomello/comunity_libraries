@@ -133,13 +133,15 @@ def reserve_books(request):
         
         # Preparar mensaje de respuesta
         if len(reservations_created) == 1:
-            message = _('Reservation made successfully for %(library)s.') % {'library': reservations_created[0]['library_name']}
+            message = _('Reservation made successfully for {library}.').format(
+                library=reservations_created[0]['library_name']
+            )
         else:
             libraries_list = ', '.join([res['library_name'] for res in reservations_created])
-            message = _('%(count)d reservations created successfully for: %(libraries)s.') % {
-                'count': len(reservations_created), 
-                'libraries': libraries_list
-            }
+            message = _('{count} reservations created successfully for: {libraries}.').format(
+                count=len(reservations_created), 
+                libraries=libraries_list
+            )
         
         return JsonResponse({
             'message': message,
@@ -153,12 +155,16 @@ def reserve_books(request):
 
 def search_books(request):
     query = request.GET.get('q', '')
+    # Buscar en todos los ítems de bibliotecas con libros aprobados, sin filtrar por estado
     items = LibraryBookItem.objects.filter(
+        book__approval_status='approved'
+    ).filter(
         Q(book__title__icontains=query) | 
         Q(book__isbn__icontains=query) |
         Q(book__author__name__icontains=query) |
-        Q(book__publisher__name__icontains=query)
-    ).distinct().select_related('book', 'library', 'book__publisher').prefetch_related('book__author')
+        Q(book__publisher__name__icontains=query) |
+        Q(library__name__icontains=query)
+    ).distinct().select_related('book', 'library', 'book__publisher').prefetch_related('book__author', 'book__tags')
     results = []
     for item in items:
         # Construir URL de la imagen de portada
@@ -168,6 +174,8 @@ def search_books(request):
             
         results.append({
             'library': item.library.__str__(),
+            'library_name': item.library.name,
+            'library_city': item.library.city.name,
             'address': item.library.address,
             'title': item.book.title,
             'authors': ', '.join([a.name for a in item.book.author.all()]),
@@ -179,12 +187,53 @@ def search_books(request):
             'cover_image_url': cover_image_url,
             'description': item.book.description or '',
             'pages': item.book.pages,
+            'publication_date': item.book.publication_date.strftime('%Y') if item.book.publication_date else '',
+            'tags': [tag.name for tag in item.book.tags.all()],
+            'language': item.book.language,
         })
     return JsonResponse({'results': results})
 
 def search_page(request):
     libraries = Library.objects.all()
+    
+    # Obtener los últimos 10 ítems de biblioteca dados de alta (independientemente de su estado)
+    latest_books = LibraryBookItem.objects.filter(
+        book__approval_status='approved'
+    ).select_related(
+        'book', 'library', 'book__publisher'
+    ).prefetch_related(
+        'book__author', 'book__tags'
+    ).order_by('-created_at')[:10]
+    
+    # Convertir a formato para el carrusel
+    carousel_items = []
+    for item in latest_books:
+        cover_image_url = None
+        if item.book.cover_image:
+            cover_image_url = item.book.cover_image.url
+            
+        carousel_items.append({
+            'library': item.library.__str__(),
+            'library_name': item.library.name,
+            'library_city': item.library.city.name,
+            'address': item.library.address,
+            'title': item.book.title,
+            'authors': ', '.join([a.name for a in item.book.author.all()]),
+            'isbn': item.book.isbn,
+            'publisher': item.book.publisher.name,
+            'code': item.code,
+            'status': item.get_status_display(),
+            'is_available': item.status == 'available',
+            'cover_image_url': cover_image_url,
+            'description': item.book.description or '',
+            'pages': item.book.pages,
+            'publication_date': item.book.publication_date.strftime('%Y') if item.book.publication_date else '',
+            'tags': [tag.name for tag in item.book.tags.all()],
+            'language': item.book.language,
+        })
+    
     return render(request, 'books/search.html', {
         'libraries': libraries,
+        'carousel_items': carousel_items,
         'now': timezone.now(),
     })
