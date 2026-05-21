@@ -109,10 +109,19 @@ Es un subagente especializado en Django que conoce todas las convenciones del pr
   - `search_page()`: `Library.objects.filter(show_in_search=True)`, carrusel filtrado
 - `locale/es/LC_MESSAGES/django.po` — Traducción "Mostrar en búsqueda"
 
+### 3.3 ✏️ Fix error `IntegrityError` duplicado UserProfile
+
+**Problema**: Al crear un usuario desde `/admin/auth/user/add/` fallaba con `(1062, "Duplicate entry 'N' for key 'books_userprofile.user_id'")`. La causa era que tanto el signal `post_save` como el `UserProfileInline` en el admin intentaban crear el `UserProfile`.
+
+**Archivos modificados:**
+- `books/models.py` — Signal `create_user_profile`: cambiado `UserProfile.objects.create()` por `UserProfile.objects.get_or_create()` para hacerlo idempotente
+- `books/admin.py` — Eliminado el `UserProfileInline` y la subclase `UserAdmin`; el User ahora se registra con `BaseUserAdmin` directamente. El `UserProfileAdmin` ya existe para gestionar perfiles por separado.
+
 ---
 
 ## 4. Pendientes
 
-- [ ] Ejecutar `python3 manage.py makemigrations books` (crear migración)
-- [ ] Ejecutar `python3 manage.py migrate books` (aplicar migración)
-- [ ] Ejecutar `python3 manage.py compilemessages` (compilar traducciones)
+- [x] Ejecutar `makemigrations` (creadas 0015 y 0016)
+- [x] Ejecutar `migrate` (aplicadas)
+- [x] Ejecutar `compilemessages` (traducciones compiladas)
+- [ ] En servidor: eliminar migración incompleta `0015_alter_librarybookitem_options.py` y hacer `git pull`
