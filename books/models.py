@@ -205,7 +205,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     Automatically create a profile when a user is created
     """
     if created:
-        UserProfile.objects.create(user=instance)
+        UserProfile.objects.get_or_create(user=instance)
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
