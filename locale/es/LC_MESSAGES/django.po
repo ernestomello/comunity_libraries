@@ -179,6 +179,10 @@ msgstr "Correo electrónico"
 msgid "Phone Number"
 msgstr "Número Telefono"
 
+#: books/models.py:172 books/models.py:234
+msgid "Show in search"
+msgstr "Mostrar en búsqueda"
+
 #: books/models.py:171 books/models.py:212 books/models.py:276
 msgid "Library"
 msgstr "Biblioteca"
@@ -291,7 +295,7 @@ msgstr "[%(lib_name)s] Actualización de la Reserva : %(status)s"
 msgid ""
 "Your reservation at %(lib_name)s has been received and is being processed."
 msgstr ""
-"Tu reserva en %{library_name}s ha sido recibida y está siendo procesada."
+"Tu reserva en %(lib_name)s ha sido recibida y está siendo procesada."
 
 #: books/models.py:301
 #, python-format
@@ -318,6 +322,10 @@ msgstr "Los libros han sido devueltos. ¡Gracias por usar nuestra biblioteca!"
 #, python-format
 msgid "Your reservation status has changed to: %(status)s"
 msgstr "El estado de su reserva ha cambiado a: %(status)s"
+
+#: books/models.py:48 books/templates/books/search.html:69
+msgid "Illustrator"
+msgstr "Ilustrador"
 
 #: books/models.py:367
 msgid "Reservation"
@@ -360,8 +368,8 @@ msgid "Search Books"
 msgstr "Buscar Libros"
 
 #: books/templates/books/search.html:126
-msgid "Search by title, author, publisher, library or ISBN..."
-msgstr "Buscar por título, autor, editorial o ISBN..."
+msgid "Search by title, author, illustrator, publisher, library or ISBN..."
+msgstr "Buscar por título, autor, ilustrador, editorial o ISBN..."
 
 #: books/templates/books/search.html:130
 msgid ""

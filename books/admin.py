@@ -25,15 +25,15 @@ class PublisherAdmin(admin.ModelAdmin):
 
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
-    list_display = ('mostrar_portada','title', 'get_authors', 'isbn', 'approval_status', )
+    list_display = ('mostrar_portada','title', 'get_authors', 'get_illustrators', 'isbn', 'approval_status', )
     search_fields = ('title', 'isbn')
     list_filter = ('approval_status', 'publication_date', 'publisher', 'created_at')
-    filter_horizontal = ('author', 'tags')
+    filter_horizontal = ('author', 'illustrator', 'tags')
     readonly_fields = ('created_by', 'created_at', 'approved_by', 'approved_at')
     
     fieldsets = (
         ('Book Information', {
-            'fields': ('title', 'author', 'isbn', 'publication_date', 'publisher', 'pages', 'tags','language', 'cover_image', 'description','edition'),
+            'fields': ('title', 'author', 'illustrator', 'isbn', 'publication_date', 'publisher', 'pages', 'tags','language', 'cover_image', 'description','edition'),
         }),
         ('Approval System', {
             'fields': ('approval_status', 'rejection_reason', 'created_by', 'approved_by', 'approved_at'),
@@ -53,6 +53,13 @@ class BookAdmin(admin.ModelAdmin):
     def get_authors(self, obj):
         return ", ".join([author.name for author in obj.author.all()])
     get_authors.short_description = 'Authors'
+
+    def get_illustrators(self, obj):
+        illustrators = obj.illustrator.all()
+        if illustrators:
+            return ", ".join([i.name for i in illustrators])
+        return "—"
+    get_illustrators.short_description = 'Illustrators'
 
     def approve_books(self, request, queryset):
         if not request.user.groups.filter(name='librarian').exists():
@@ -97,15 +104,15 @@ class BookAdmin(admin.ModelAdmin):
 
 @admin.register(Library)
 class LibraryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'city', 'address','email','phone')
+    list_display = ('name', 'city', 'address','email','phone', 'show_in_search')
     search_fields = ('name', 'city', )
-    list_filter = ('city',)
+    list_filter = ('city', 'show_in_search')
 
 @admin.register(LibraryBookItem)
 class LibraryBookItemAdmin(admin.ModelAdmin):
-    list_display = ('book', 'library', 'code', 'status', 'get_created_by', 'created_at')
+    list_display = ('book', 'library', 'code', 'status', 'show_in_search', 'get_created_by', 'created_at')
     search_fields = ('book__title', 'library__name', 'code')
-    list_filter = ('status', 'library', 'created_at')
+    list_filter = ('status', 'library', 'show_in_search', 'created_at')
     readonly_fields = ('created_at',)
     exclude = ('created_by',)  # Excluir del formulario ya que se asigna automáticamente
     

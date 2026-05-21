@@ -199,6 +199,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-user me-1"></i>${book.authors}
                         ${book.publication_date ? `<span class="ms-2"><i class="fas fa-calendar me-1"></i>${book.publication_date}</span>` : ''}
                     </p>
+                    ${book.illustrators ? `<p class="book-illustrator">
+                        <i class="fas fa-paint-brush me-1"></i>Ilustrador: ${book.illustrators}
+                    </p>` : ''}
                     <p class="book-library">
                         <i class="fas fa-map-marker-alt me-1"></i>${book.library_name}, ${book.library_city}
                     </p>

@@ -157,14 +157,17 @@ def search_books(request):
     query = request.GET.get('q', '')
     # Buscar en todos los ítems de bibliotecas con libros aprobados, sin filtrar por estado
     items = LibraryBookItem.objects.filter(
+        show_in_search=True,
+        library__show_in_search=True,
         book__approval_status='approved'
     ).filter(
         Q(book__title__icontains=query) | 
         Q(book__isbn__icontains=query) |
         Q(book__author__name__icontains=query) |
+        Q(book__illustrator__name__icontains=query) |
         Q(book__publisher__name__icontains=query) |
         Q(library__name__icontains=query)
-    ).distinct().select_related('book', 'library', 'book__publisher').prefetch_related('book__author', 'book__tags')
+    ).distinct().select_related('book', 'library', 'book__publisher').prefetch_related('book__author', 'book__illustrator', 'book__tags')
     results = []
     for item in items:
         # Construir URL de la imagen de portada
@@ -179,6 +182,7 @@ def search_books(request):
             'address': item.library.address,
             'title': item.book.title,
             'authors': ', '.join([a.name for a in item.book.author.all()]),
+            'illustrators': ', '.join([i.name for i in item.book.illustrator.all()]),
             'isbn': item.book.isbn,
             'publisher': item.book.publisher.name,
             'code': item.code,
@@ -194,15 +198,17 @@ def search_books(request):
     return JsonResponse({'results': results})
 
 def search_page(request):
-    libraries = Library.objects.all()
+    libraries = Library.objects.filter(show_in_search=True)
     
     # Obtener los últimos 10 ítems de biblioteca dados de alta (independientemente de su estado)
     latest_books = LibraryBookItem.objects.filter(
+        show_in_search=True,
+        library__show_in_search=True,
         book__approval_status='approved'
     ).select_related(
         'book', 'library', 'book__publisher'
     ).prefetch_related(
-        'book__author', 'book__tags'
+        'book__author', 'book__illustrator', 'book__tags'
     ).order_by('-created_at')[:10]
     
     # Convertir a formato para el carrusel
@@ -219,6 +225,7 @@ def search_page(request):
             'address': item.library.address,
             'title': item.book.title,
             'authors': ', '.join([a.name for a in item.book.author.all()]),
+            'illustrators': ', '.join([i.name for i in item.book.illustrator.all()]),
             'isbn': item.book.isbn,
             'publisher': item.book.publisher.name,
             'code': item.code,

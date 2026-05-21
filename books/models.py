@@ -43,6 +43,12 @@ class Tag(models.Model):
 class Book(models.Model):
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     author = models.ManyToManyField(Author,verbose_name=_("Author"))
+    illustrator = models.ManyToManyField(
+        Author, 
+        blank=True, 
+        related_name='illustrated_books',
+        verbose_name=_("Illustrator")
+    )
     isbn = models.CharField(max_length=13, unique=True, verbose_name=_("ISBN"))
     publication_date = models.DateField(verbose_name=_("Publication Date"))
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, verbose_name=_("Publisher"))
@@ -163,6 +169,7 @@ class Library(models.Model):
     address = models.CharField(max_length=255, verbose_name=_("Address"))
     email = models.EmailField(null=True, blank=True, verbose_name=_("Email"))
     phone = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Phone Number"))
+    show_in_search = models.BooleanField(default=True, verbose_name=_("Show in search"))
 
     def __str__(self):
         return f"{self.name} ({self.city})"
@@ -220,6 +227,7 @@ class LibraryBookItem(models.Model):
         # Add more statuses if needed
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available', verbose_name=_("Status"))
+    show_in_search = models.BooleanField(default=True, verbose_name=_("Show in search"))
     
     # Audit fields
     created_by = models.ForeignKey(
@@ -251,14 +259,7 @@ class LibraryBookItem(models.Model):
             user_profile = getattr(self.created_by, 'profile', None)
             if user_profile and not user_profile.assigned_libraries.filter(id=self.library.id).exists():
                 raise ValidationError(_("You can only add items to your assigned libraries"))
-        def __str__(self):
-            return f"{self.book.title} ({self.code}) en {self.library.name} - {self.get_status_display()}"
-        
-        class Meta:
-            verbose_name = _("Library Book Item")
-            verbose_name_plural = _("Library Book Items")
-            ordering = ['-created_at']   
-    
+
 class Reservation(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("Name"))
     email = models.EmailField(verbose_name=_("Email"))

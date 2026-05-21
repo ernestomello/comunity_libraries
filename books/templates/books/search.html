@@ -69,6 +69,11 @@
                                         <span class="ms-3"><i class="fas fa-calendar me-1"></i>{{ item.publication_date }}</span>
                                         {% endif %}
                                     </p>
+                                    {% if item.illustrators %}
+                                    <p class="text-muted mb-2">
+                                        <i class="fas fa-paint-brush me-1"></i>{% trans "Illustrator" %}: {{ item.illustrators }}
+                                    </p>
+                                    {% endif %}
                                     <p class="text-muted mb-2">
                                         <i class="fas fa-building me-1"></i>{{ item.publisher }}
                                     </p>
@@ -123,7 +128,7 @@
                             </span>
                             <input type="text" id="search" 
                                    class="form-control" 
-                                   placeholder="{% trans 'Search by title, author, publisher, library or ISBN...' %}" 
+                                   placeholder="{% trans 'Search by title, author, illustrator, publisher, library or ISBN...' %}" 
                                    autocomplete="off">
                         </div>
                         <small class="text-muted mt-2 d-block">
