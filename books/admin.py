@@ -155,20 +155,9 @@ class LibraryBookItemAdmin(admin.ModelAdmin):
         # Call original method to finish saving
         super().save_model(request, obj, form, change)
 
-# UserProfile inline para el admin de User
-class UserProfileInline(admin.StackedInline):
-    model = UserProfile
-    can_delete = False
-    verbose_name_plural = 'Profile'
-    fields = ('assigned_libraries',)
-
-# Extender el UserAdmin para incluir el profile
-class UserAdmin(BaseUserAdmin):
-    inlines = (UserProfileInline,)
-
 # Re-registrar UserAdmin
 admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
+admin.site.register(User, BaseUserAdmin)
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
