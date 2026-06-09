@@ -127,8 +127,9 @@ docker-compose*
 *.md
 docs/
 
-# Scripts de desarrollo
+# Scripts de desarrollo (excepto los necesarios para Docker)
 *.sh
+!docker-entrypoint.sh
 diagnose.sh
 fix_migration.sh
 install_pythonanywhere.sh
@@ -138,6 +139,8 @@ wsgi_pythonanywhere.py
 
 # Archivos de requirements (se copian explícitamente)
 requirements*.txt
+!requirements.txt
+!requirements-production.txt
 
 # Node modules si existe
 node_modules/
