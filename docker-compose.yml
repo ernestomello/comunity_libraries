@@ -21,9 +21,11 @@ services:
     networks:
       - app-network
     healthcheck:
-        test: ["CMD", "mysqladmin", "ping"]
-        timeout: 20s
-        retries: 10
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Aplicación Django
   web:
