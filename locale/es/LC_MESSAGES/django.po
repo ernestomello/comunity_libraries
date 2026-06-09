@@ -113,11 +113,11 @@ msgstr "Creado en"
 
 #: books/models.py:67
 msgid "Pending Approval"
-msgstr "Aprovación Pendiente"
+msgstr "Aprobación Pendiente"
 
 #: books/models.py:68
 msgid "Approved"
-msgstr "Aprovado"
+msgstr "Aprobado"
 
 #: books/models.py:69
 msgid "Rejected"

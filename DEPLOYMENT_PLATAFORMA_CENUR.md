@@ -394,8 +394,7 @@ docker compose exec db mysqldump -u root -p$DATABASE_ROOT_PASSWORD \
 ls -la /opt/comunity_libraries/backups/
 
 # Restaurar (reemplaza backup_file.sql con el nombre real)
-docker compose exec -T db mysql -u root -p$DATABASE_ROOT_PASSWORD \
-    comunity_libraries < backups/backup_file.sql
+docker compose exec -T db mysql -u django_user -p$(grep DATABASE_PASSWORD .env | cut -d= -f2) community_libraries < backups/backup_file.sql
 ```
 
 ### 10.3. Backup programado (cron)
@@ -407,7 +406,7 @@ sudo crontab -e
 Agrega esta línea para backup diario a las 3 AM:
 
 ```cron
-0 3 * * * cd /opt/comunity_libraries && docker compose exec db mysqldump -u root -p$(grep DATABASE_ROOT_PASSWORD .env | cut -d= -f2) comunity_libraries > backups/backup_$(date +\%Y\%m\%d).sql
+0 3 * * * cd /opt/comunity_libraries && docker compose exec db mysqldump -u django_user -p$(grep DATABASE_PASSWORD .env | cut -d= -f2) community_libraries > backups/backup_$(date +\%Y\%m\%d).sql
 ```
 
 ---
