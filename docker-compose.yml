@@ -21,7 +21,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+        test: ["CMD", "mysqladmin", "ping"]
       timeout: 20s
       retries: 10
 
