@@ -1,16 +1,16 @@
+import logging
+
 from django.db import models, transaction
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.db import transaction
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.template.loader import render_to_string
-
-# Create your models here.
-
 from django.utils.translation import gettext_lazy as _
+
+logger = logging.getLogger(__name__)
 
 class Author(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("Name"))
@@ -277,58 +277,111 @@ class Reservation(models.Model):
     library = models.ForeignKey(Library, on_delete=models.CASCADE, verbose_name=_("Library"))
 
     def send_notification(self):
-        """
-        Send email to user with copy to library.
-        All texts are in English and marked for translation.
-        """
-        # Get library from first item
         first_item = self.items.first()
         if not first_item:
             return
 
-        # Use the library from the reservation (not from items)
         library = self.library
         library_email = library.email or settings.DEFAULT_FROM_EMAIL
-        
-        # Translatable subject
+
         subject = _("[%(lib_name)s] Reservation Update: %(status)s") % {
             'lib_name': library.name,
             'status': self.get_status_display()
         }
 
-        # Message dictionary in English (marked for translation)
-        messages = {
-            'pending': _("Your reservation at %(lib_name)s has been received and is being processed.") % {'lib_name': library.name},
-            'ready': _("Your books are ready for pickup! Please visit us at: %(address)s, %(city)s.") % {
-                'address': library.address, 
-                'city': library.city.name
+        books_rows = ""
+        for item in self.items.all():
+            authors = item.book.author.all()
+            author_names = ", ".join(a.name for a in authors)
+            books_rows += f"""
+            <tr>
+                <td style="padding:10px;border-bottom:1px solid #e0e0e0;">{item.book.title}</td>
+                <td style="padding:10px;border-bottom:1px solid #e0e0e0;">{author_names}</td>
+                <td style="padding:10px;border-bottom:1px solid #e0e0e0;">{item.code}</td>
+            </tr>"""
+
+        status_data = {
+            'pending': {
+                'title': _('Reservation Received'),
+                'message': _('Your reservation at %(lib_name)s has been received and is being processed.') % {'lib_name': library.name},
             },
-            'delivered': _("The books have been successfully delivered. Enjoy your reading!"),
-            'canceled': _("Your reservation has been canceled."),
-            'completed': _("The books have been returned. Thank you for using our library!"),
+            'ready': {
+                'title': _('Books Ready for Pickup'),
+                'message': _('Your books are ready for pickup! Please visit us at: %(address)s, %(city)s.') % {
+                    'address': library.address, 'city': library.city.name
+                },
+            },
+            'delivered': {
+                'title': _('Books Delivered'),
+                'message': _('The books have been successfully delivered. Enjoy your reading!'),
+            },
+            'canceled': {
+                'title': _('Reservation Canceled'),
+                'message': _('Your reservation has been canceled.'),
+            },
+            'completed': {
+                'title': _('Reservation Completed'),
+                'message': _('The books have been returned. Thank you for using our library!'),
+            },
         }
 
-        body_text = messages.get(self.status, _("Your reservation status has changed to: %(status)s") % {'status': self.get_status_display()})
+        status_info = status_data.get(self.status, {
+            'title': _('Reservation Update'),
+            'message': _('Your reservation status has changed to: %(status)s') % {'status': self.get_status_display()},
+        })
+
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:Arial,Helvetica,sans-serif;color:#333;margin:0;padding:0;background-color:#f4f4f4;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;padding:20px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+<tr><td style="background-color:#2c3e50;padding:20px;text-align:center;">
+<h1 style="color:#ffffff;margin:0;font-size:24px;">{library.name}</h1>
+</td></tr>
+<tr><td style="padding:30px;">
+<h2 style="color:#2c3e50;margin-top:0;">{status_info['title']}</h2>
+<p style="font-size:16px;line-height:1.6;">{status_info['message']}</p>
+<h3 style="color:#2c3e50;margin-top:25px;">{_('Reserved Books')}</h3>
+<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+<tr style="background-color:#2c3e50;color:#ffffff;">
+<th style="padding:10px;text-align:left;">{_('Title')}</th>
+<th style="padding:10px;text-align:left;">{_('Author')}</th>
+<th style="padding:10px;text-align:left;">{_('Code')}</th>
+</tr>
+{books_rows}
+</table>
+<p style="margin-top:25px;font-size:14px;color:#666;line-height:1.6;">
+{library.name}<br>
+{library.address}, {library.city.name}<br>
+{_('Email')}: {library_email}
+</p>
+<p style="font-size:14px;color:#666;">{_('Thank you for using our library!')}</p>
+</td></tr>
+<tr><td style="background-color:#2c3e50;padding:15px;text-align:center;color:#ffffff;font-size:12px;">
+{library.name} &copy; {timezone.now().year}
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>"""
 
         try:
             email = EmailMessage(
                 subject=subject,
-                body=body_text,
+                body=html_content,
                 from_email=f"{library.name} <{settings.EMAIL_HOST_USER}>",
                 to=[self.email],
-                reply_to=[library_email],  # User replies go to library
-                cc=[library_email],       # Library gets copy of every movement
+                reply_to=[library_email],
+                cc=[library_email],
             )
-            # Don't use fail_silently=True during development/debugging
+            email.content_subtype = "html"
             email.send(fail_silently=False)
-            print(f"✅ Email sent successfully to {self.email} for reservation #{self.id}")
+            logger.info(f"Email sent successfully to {self.email} for reservation #{self.id}")
         except Exception as e:
-            # Log the error for debugging
-            print(f"❌ Failed to send email to {self.email} for reservation #{self.id}: {str(e)}")
-            # In production, consider using proper logging:
-            # import logging
-            # logger = logging.getLogger(__name__)
-            # logger.error(f"Failed to send email: {str(e)}")
+            logger.error(f"Failed to send email to {self.email} for reservation #{self.id}: {str(e)}")
 
     def save(self, *args, **kwargs):
         with transaction.atomic():

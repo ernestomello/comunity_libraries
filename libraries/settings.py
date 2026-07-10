@@ -48,14 +48,14 @@ CORS_ORIGINS_WHITELIST = env.list("CORS_ORIGINS_WHITELIST",default=["http://loca
 
 # configuración de servidor de correo para notificaciones
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
-EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', default='tu-biblioteca@gmail.com')
-EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', default='tu-contraseña-de-aplicacion')
-DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', default='Sistema de Bibliotecas <tu-biblioteca@gmail.com>')
-EMAIL_TIMEOUT = 60  # Timeout para conexiones SMTP
+EMAIL_HOST = env.str('EMAIL_HOST', default='correo.interior.edu.uy')
+EMAIL_PORT = env.int('EMAIL_PORT', default=465)
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', default='biblio-comunitaria@litoralnorte.udelar.edu.uy')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', default='Sistema de Bibliotecas <biblio-comunitaria@litoralnorte.udelar.edu.uy>')
+EMAIL_TIMEOUT = 60
 
 # Application definition
 
