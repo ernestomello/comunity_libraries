@@ -117,11 +117,22 @@ Es un subagente especializado en Django que conoce todas las convenciones del pr
 - `books/models.py` — Signal `create_user_profile`: cambiado `UserProfile.objects.create()` por `UserProfile.objects.get_or_create()` para hacerlo idempotente
 - `books/admin.py` — Eliminado el `UserProfileInline` y la subclase `UserAdmin`; el User ahora se registra con `BaseUserAdmin` directamente. El `UserProfileAdmin` ya existe para gestionar perfiles por separado.
 
----
+### 3.4 ✏️ Configuración SMTP y mejora de notificaciones por email
 
-## 4. Pendientes
+**Archivos modificados:**
+- `.env` — Nuevas credenciales: `biblio-comunitaria@litoralnorte.udelar.edu.uy`
+- `libraries/settings.py` — SMTP: `correo.interior.edu.uy:465` SSL
+- `books/models.py` — `send_notification()` mejorado con:
+  - Plantillas HTML por estado (pending, ready, delivered, canceled, completed)
+  - Tabla de libros reservados (título, autor, código)
+  - Logging con `logger` en vez de `print()`
 
-- [x] Ejecutar `makemigrations` (creadas 0015 y 0016)
-- [x] Ejecutar `migrate` (aplicadas)
-- [x] Ejecutar `compilemessages` (traducciones compiladas)
-- [ ] En servidor: eliminar migración incompleta `0015_alter_librarybookitem_options.py` y hacer `git pull`
+### 3.5 ⚠️ Problema de relay SMTP hacia cup.edu.uy
+
+**Problema**: El servidor SMTP `correo.interior.edu.uy` (godel.csic.edu.uy) rechaza el relay hacia `cup.edu.uy`:
+```
+554 5.7.1 <emello@cup.edu.uy>: Recipient address rejected: Access denied
+```
+El servidor permite enviar a externos (Gmail llegó correctamente) pero bloquea el envío a `cup.edu.uy` por política interna, aunque `cup.edu.uy` use el mismo servidor como MX.
+
+**Solución pendiente**: Modificar `send_notification()` para que cuando falle el envío al solicitante por relay SMTP, haga entrega directa al MX de `cup.edu.uy` (`godel.csic.edu.uy:25`) sin autenticación como segundo intento.
