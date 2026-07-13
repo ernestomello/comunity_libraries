@@ -113,8 +113,8 @@ class LibraryBookItemAdmin(admin.ModelAdmin):
     list_display = ('book', 'library', 'code', 'status', 'show_in_search', 'get_created_by', 'created_at')
     search_fields = ('book__title', 'library__name', 'code')
     list_filter = ('status', 'library', 'show_in_search', 'created_at')
-    readonly_fields = ('created_at',)
-    exclude = ('created_by',)  # Excluir del formulario ya que se asigna automáticamente
+    readonly_fields = ('status', 'created_at',)
+    exclude = ('created_by',)
     
     def get_created_by(self, obj):
         """Mostrar el usuario que creó el ítem o 'Unknown' si no hay"""

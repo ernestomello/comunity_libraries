@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-29 18:18-0300\n"
+"POT-Creation-Date: 2026-07-13 13:40-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
 "1 : 2;\n"
 
-#: books/models.py:16 books/models.py:263
+#: books/models.py:16 books/models.py:269
 msgid "Name"
 msgstr "Nombre"
 
@@ -43,7 +43,7 @@ msgstr "Autores"
 msgid "Name of Publisher"
 msgstr "Nombre del Editorial"
 
-#: books/models.py:28 books/models.py:163
+#: books/models.py:28 books/models.py:169
 msgid "Address"
 msgstr "Dirección"
 
@@ -51,7 +51,7 @@ msgstr "Dirección"
 msgid "Website"
 msgstr "Sitio Web"
 
-#: books/models.py:34 books/models.py:48
+#: books/models.py:34 books/models.py:54
 msgid "Publisher"
 msgstr "Editorial"
 
@@ -67,237 +67,260 @@ msgstr "Etiqueta"
 msgid "Title"
 msgstr "Título"
 
-#: books/models.py:46
+#: books/models.py:50 books/templates/books/search.html:74
+msgid "Illustrator"
+msgstr "Ilustrador"
+
+#: books/models.py:52
 msgid "ISBN"
 msgstr "ISBN"
 
-#: books/models.py:47
+#: books/models.py:53
 msgid "Publication Date"
 msgstr "Fecha Publicación"
 
-#: books/models.py:49
+#: books/models.py:55
 msgid "Number of Pages"
 msgstr "Número de Páginas"
 
-#: books/models.py:50
+#: books/models.py:56
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: books/models.py:52
+#: books/models.py:58
 msgid "Language"
 msgstr "Lenguaje"
 
-#: books/models.py:53
+#: books/models.py:59
 msgid "Edition"
 msgstr "Edición"
 
-#: books/models.py:54
+#: books/models.py:60
 msgid "Description/Summary"
 msgstr "Descripción/Resumen"
 
-#: books/models.py:55
+#: books/models.py:61
 msgid "Cover Image"
 msgstr "Imagen de Tapa"
 
-#: books/models.py:61 books/models.py:229
+#: books/models.py:67 books/models.py:237
 msgid "Created by"
 msgstr "Creado por "
 
-#: books/models.py:62
+#: books/models.py:68
 msgid "User who created this book entry"
 msgstr "Usuario que creó esta entrada de libro"
 
-#: books/models.py:64 books/models.py:233
+#: books/models.py:70 books/models.py:241
 msgid "Created at"
 msgstr "Creado en"
 
-#: books/models.py:67
+#: books/models.py:73
 msgid "Pending Approval"
 msgstr "Aprobación Pendiente"
 
-#: books/models.py:68
+#: books/models.py:74
 msgid "Approved"
 msgstr "Aprobado"
 
-#: books/models.py:69
+#: books/models.py:75
 msgid "Rejected"
 msgstr "Rechazado"
 
-#: books/models.py:75
+#: books/models.py:81
 msgid "Approval Status"
 msgstr "Estado Aprobado"
 
-#: books/models.py:84
+#: books/models.py:90
 msgid "Approved by"
 msgstr "Aprobado por"
 
-#: books/models.py:85
+#: books/models.py:91
 msgid "Librarian who approved this book"
 msgstr "Bibliotecario que aprobó este libro"
 
-#: books/models.py:90
+#: books/models.py:96
 msgid "Approved at"
 msgstr "Aprobado en"
 
-#: books/models.py:95
+#: books/models.py:101
 msgid "Rejection Reason"
 msgstr "Motivo del Rechazo"
 
-#: books/models.py:96
+#: books/models.py:102
 msgid "Reason for rejection if status is rejected"
 msgstr "Motivo del rechazo si el estado es rechazado"
 
-#: books/models.py:134 books/models.py:213
+#: books/models.py:140 books/models.py:220
 msgid "Book"
 msgstr "Libro"
 
-#: books/models.py:135
+#: books/models.py:141
 msgid "Books"
 msgstr "Libros"
 
-#: books/models.py:143 books/models.py:150
+#: books/models.py:149 books/models.py:156
 msgid "Country"
 msgstr "País"
 
-#: books/models.py:149 books/models.py:157 books/models.py:162
+#: books/models.py:155 books/models.py:163 books/models.py:168
 msgid "City"
 msgstr "Ciudad"
 
-#: books/models.py:158
+#: books/models.py:164
 msgid "Cities"
 msgstr "Ciudades"
 
-#: books/models.py:161
+#: books/models.py:167
 msgid "Library Name"
 msgstr "Nombre de la Biblioteca"
 
-#: books/models.py:164 books/models.py:264
+#: books/models.py:170 books/models.py:270
 msgid "Email"
 msgstr "Correo electrónico"
 
-#: books/models.py:165
+#: books/models.py:171
 msgid "Phone Number"
 msgstr "Número Telefono"
 
-#: books/models.py:172 books/models.py:234
+#: books/models.py:172 books/models.py:230
 msgid "Show in search"
 msgstr "Mostrar en búsqueda"
 
-#: books/models.py:171 books/models.py:212 books/models.py:276
+#: books/models.py:178 books/models.py:219 books/models.py:283
 msgid "Library"
 msgstr "Biblioteca"
 
-#: books/models.py:172
+#: books/models.py:179
 msgid "Libraries"
 msgstr "Bibliotecas"
 
-#: books/models.py:182
+#: books/models.py:189
 msgid "Assigned Libraries"
 msgstr "Bibliotecas asignadas"
 
-#: books/models.py:183
+#: books/models.py:190
 msgid "Libraries assigned to this user for managing book items"
 msgstr ""
 "Bibliotecas asignadas a este usuario para gestionar elementos de libros"
 
-#: books/models.py:188
+#: books/models.py:195
 msgid "assigned libraries"
 msgstr "bibliotecas asignadas"
 
-#: books/models.py:191
+#: books/models.py:198
 msgid "User Profile"
 msgstr "Perfil de Usuario"
 
-#: books/models.py:192
+#: books/models.py:199
 msgid "User Profiles"
 msgstr "Perfiles de Usuario"
 
-#: books/models.py:214
+#: books/models.py:221
 msgid "Inventory Code"
 msgstr "Código de Inventario"
 
-#: books/models.py:216
+#: books/models.py:223
 msgid "Available"
 msgstr "Disponible"
 
-#: books/models.py:217
+#: books/models.py:224
 msgid "Loaned"
 msgstr "Prestado"
 
-#: books/models.py:218
+#: books/models.py:225
 msgid "Reserved"
 msgstr "Reservado"
 
-#: books/models.py:219
+#: books/models.py:226
 msgid "Lost"
 msgstr "Perdido"
 
-#: books/models.py:222 books/models.py:275
+#: books/models.py:227 books/models.py:280
+msgid "Unreturned"
+msgstr "No Devuelto"
+
+#: books/models.py:229 books/models.py:282
 msgid "Status"
 msgstr "Estado"
 
-#: books/models.py:235 books/models.py:258
+#: books/models.py:243
 msgid "Library Book Item"
 msgstr "Libro en Biblioteca"
 
-#: books/models.py:236 books/models.py:259
+#: books/models.py:244
 msgid "Library Book Items"
 msgstr "Libros en Bibliotecas"
 
-#: books/models.py:247
+#: books/models.py:254
 msgid "Only approved books can be added to library inventory"
 msgstr ""
 "Solo los libros aprobados pueden añadirse al inventario de la biblioteca"
 
-#: books/models.py:253
+#: books/models.py:259
 msgid "You can only add items to your assigned libraries"
 msgstr "Solo puedes añadir elementos a tus bibliotecas asignadas."
 
 #: books/models.py:265
+msgid ""
+"Cannot change status directly. Use the Reservation admin to manage book "
+"status."
+msgstr ""
+"No se puede cambiar el estado directamente. Use la administración de "
+"Reservas para gestionar el estado del libro."
+
+#: books/models.py:271
 msgid "Reserved Items"
 msgstr "Items Reservados"
 
-#: books/models.py:266
+#: books/models.py:272
 msgid "Created At"
 msgstr "Creado el"
 
-#: books/models.py:267
+#: books/models.py:273
 msgid "Status Date"
 msgstr "Fecha del Estado"
 
-#: books/models.py:269
+#: books/models.py:275
 msgid "Pending"
 msgstr "Pendiente"
 
-#: books/models.py:270
+#: books/models.py:276
 msgid "Ready for Pickup"
 msgstr "Listo para recoger"
 
-#: books/models.py:271
+#: books/models.py:277
+msgid "Delivered"
+msgstr "Entregado"
+
+#: books/models.py:278
 msgid "Completed"
 msgstr "Completado"
 
-#: books/models.py:272
+#: books/models.py:279
 msgid "Canceled"
 msgstr "Cancelado"
-
-#: books/models.py:273
-msgid "Delivered"
-msgstr "Entregado"
 
 #: books/models.py:293
 #, python-format
 msgid "[%(lib_name)s] Reservation Update: %(status)s"
 msgstr "[%(lib_name)s] Actualización de la Reserva : %(status)s"
 
-#: books/models.py:300
+#: books/models.py:311
+msgid "Reservation Received"
+msgstr "Reserva Recibida"
+
+#: books/models.py:312
 #, python-format
 msgid ""
 "Your reservation at %(lib_name)s has been received and is being processed."
-msgstr ""
-"Tu reserva en %(lib_name)s ha sido recibida y está siendo procesada."
+msgstr "Tu reserva en %(lib_name)s ha sido recibida y está siendo procesada."
 
-#: books/models.py:301
+#: books/models.py:315
+msgid "Books Ready for Pickup"
+msgstr "Libros Listos para Recoger"
+
+#: books/models.py:316
 #, python-format
 msgid ""
 "Your books are ready for pickup! Please visit us at: %(address)s, %(city)s."
@@ -305,33 +328,72 @@ msgstr ""
 "¡Sus libros están listos para ser recogidos! Visítenos en: %(address)s, "
 "%(city)s."
 
-#: books/models.py:305
+#: books/models.py:321
+msgid "Books Delivered"
+msgstr "Libros Entregados"
+
+#: books/models.py:322
 msgid "The books have been successfully delivered. Enjoy your reading!"
 msgstr ""
 "Los libros han sido entregados con éxito. ¡Que disfrutes de la lectura!"
 
-#: books/models.py:306
+#: books/models.py:325
+msgid "Reservation Canceled"
+msgstr "Reserva Cancelada"
+
+#: books/models.py:326
 msgid "Your reservation has been canceled."
 msgstr "Tu reserva ha sido cancelada."
 
-#: books/models.py:307
+#: books/models.py:329
+msgid "Reservation Completed"
+msgstr "Reserva Completada"
+
+#: books/models.py:330 books/models.py:370
 msgid "The books have been returned. Thank you for using our library!"
 msgstr "Los libros han sido devueltos. ¡Gracias por usar nuestra biblioteca!"
 
-#: books/models.py:310
+#: books/models.py:333
+msgid "Book Not Returned"
+msgstr "Libro No Devuelto"
+
+#: books/models.py:334
+msgid ""
+"The book has not been returned. Please contact the library for more "
+"information."
+msgstr ""
+"El libro no ha sido devuelto. Por favor contacte a la biblioteca para "
+"más información."
+
+#: books/models.py:339
+msgid "Reservation Update"
+msgstr "Actualización de Reserva"
+
+#: books/models.py:340
 #, python-format
 msgid "Your reservation status has changed to: %(status)s"
 msgstr "El estado de su reserva ha cambiado a: %(status)s"
 
-#: books/models.py:48 books/templates/books/search.html:69
-msgid "Illustrator"
-msgstr "Ilustrador"
+#: books/models.py:430
+#, python-format
+msgid "Cannot change from %(old)s to %(new)s. Allowed transitions: %(allowed)s"
+msgstr ""
+"No se puede cambiar de %(old)s a %(new)s. Transiciones permitidas: "
+"%(allowed)s"
 
-#: books/models.py:367
+#: books/models.py:356
+msgid "Reserved Books"
+msgstr "Libros Reservados"
+
+#: books/models.py:358
+msgid "Code"
+msgstr "Código"
+
+#: books/models.py:451
 msgid "Reservation"
 msgstr "Reserva"
 
-#: books/models.py:368
+#: books/models.py:452
 msgid "Reservations"
 msgstr "Reservaciones"
 
@@ -351,84 +413,84 @@ msgstr "Bibliotecas Asociadas"
 msgid "Latest Books Added"
 msgstr "Últimos Libros Agregados"
 
-#: books/templates/books/search.html:90
+#: books/templates/books/search.html:95
 msgid "Reserve This Book"
 msgstr "Reserve los libros seleccionados"
 
-#: books/templates/books/search.html:101
+#: books/templates/books/search.html:106
 msgid "Previous"
 msgstr "Previo"
 
-#: books/templates/books/search.html:105
+#: books/templates/books/search.html:110
 msgid "Next"
 msgstr "Siguiente"
 
-#: books/templates/books/search.html:115
+#: books/templates/books/search.html:120
 msgid "Search Books"
 msgstr "Buscar Libros"
 
-#: books/templates/books/search.html:126
+#: books/templates/books/search.html:131
 msgid "Search by title, author, illustrator, publisher, library or ISBN..."
 msgstr "Buscar por título, autor, ilustrador, editorial o ISBN..."
 
-#: books/templates/books/search.html:130
+#: books/templates/books/search.html:135
 msgid ""
 "Examples: 'García Márquez', 'Programming', 'Central Library', '978-...' "
 msgstr ""
 
-#: books/templates/books/search.html:140
+#: books/templates/books/search.html:145
 msgid "Search Results"
 msgstr "Resultados de Búsqueda"
 
-#: books/templates/books/search.html:142
+#: books/templates/books/search.html:147
 msgid "Reserve Selected Books"
 msgstr "Reserve los libros seleccionados"
 
-#: books/templates/books/search.html:149
+#: books/templates/books/search.html:154
 msgid "No books found"
 msgstr "No se encontraron libros"
 
-#: books/templates/books/search.html:150
+#: books/templates/books/search.html:155
 msgid "Try adjusting your search terms"
 msgstr "Pruebe ajustar sus terminos de búsqueda"
 
-#: books/templates/books/search.html:157
+#: books/templates/books/search.html:162
 msgid "Complete Your Reservation"
 msgstr "Confirme la Reserva"
 
-#: books/templates/books/search.html:161
+#: books/templates/books/search.html:166
 msgid "Full Name"
 msgstr "Nombre"
 
-#: books/templates/books/search.html:165
+#: books/templates/books/search.html:170
 msgid "Email Address"
 msgstr "Correo Electrónico"
 
-#: books/templates/books/search.html:173
+#: books/templates/books/search.html:178
 msgid "Confirm Reservation"
 msgstr "Confirme la Reserva"
 
-#: books/templates/books/search.html:176
+#: books/templates/books/search.html:181
 msgid "Cancel"
 msgstr "Cancelado"
 
-#: books/templates/books/search.html:185
+#: books/templates/books/search.html:190
 msgid "Reservation successful!"
 msgstr "Reserva realizada con éxito"
 
-#: books/templates/books/search.html:186
+#: books/templates/books/search.html:191
 msgid "You will receive a confirmation email shortly."
 msgstr "Recibirá una confirmación por correo prontamente"
 
-#: books/templates/books/search.html:198
+#: books/templates/books/search.html:203
 msgid "View Connected Libraries"
 msgstr "Ver Bibliotecas Asociadas"
 
-#: books/templates/books/search.html:229
+#: books/templates/books/search.html:234
 msgid "No libraries registered yet."
 msgstr "No hay Librerías registradas"
 
-#: books/templates/books/search.html:244
+#: books/templates/books/search.html:249
 msgid "GNU General Public License"
 msgstr ""
 
@@ -461,21 +523,21 @@ msgstr "Faltan datos requeridos (nombre, email, códigos)"
 msgid "No available items found for reservation."
 msgstr "No se encontraron ejemplares disponibles para reservar."
 
-#: books/views.py:136
+#: books/views.py:134
 #, python-brace-format
 msgid "Reservation made successfully for {library}."
 msgstr "Reserva realizada con éxito para {library}."
 
-#: books/views.py:141
+#: books/views.py:139
 #, python-brace-format
 msgid "{count} reservations created successfully for: {libraries}."
 msgstr "{count} reservas creadas con éxito para: {libraries}."
 
-#: books/views.py:152
+#: books/views.py:150
 msgid "Invalid JSON data"
 msgstr "Datos JSON inválidos"
 
-#: books/views.py:154
+#: books/views.py:152
 msgid "Internal server error"
 msgstr "Error interno del servidor"
 

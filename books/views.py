@@ -113,16 +113,14 @@ def reserve_books(request):
             library = library_data['library']
             library_items = library_data['items']
             
-            # Crear reserva para esta biblioteca (incluir library field)
             reservation = Reservation.objects.create(
                 name=name, 
                 email=email,
-                library=library  # ¡Esta línea faltaba!
+                library=library
             )
             reservation.items.set(library_items)
-            
-            # Actualizar estado de los elementos
-            LibraryBookItem.objects.filter(id__in=[item.id for item in library_items]).update(status='reserved')
+            reservation.sync_item_status()
+            reservation.send_notification()
             
             reservations_created.append({
                 'library_name': library.name,

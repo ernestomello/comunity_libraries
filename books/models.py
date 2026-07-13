@@ -218,13 +218,13 @@ def save_user_profile(sender, instance, **kwargs):
 class LibraryBookItem(models.Model):
     library = models.ForeignKey(Library, on_delete=models.CASCADE, verbose_name=_("Library"))
     book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name=_("Book"))
-    code = models.CharField(max_length=50, unique=True, verbose_name=_("Inventory Code"))  # Inventory code
+    code = models.CharField(max_length=50, unique=True, verbose_name=_("Inventory Code"))
     STATUS_CHOICES = [
         ('available', _("Available")),
         ('loaned', _("Loaned")),
         ('reserved', _("Reserved")),
         ('lost', _("Lost")),
-        # Add more statuses if needed
+        ('unreturned', _("Unreturned")),
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available', verbose_name=_("Status"))
     show_in_search = models.BooleanField(default=True, verbose_name=_("Show in search"))
@@ -247,18 +247,23 @@ class LibraryBookItem(models.Model):
     def __str__(self):
         return f"{self.book.title} ({self.code}) en {self.library.name} - {self.get_status_display()}"
 
-    # Inside LibraryBookItem class in models.py
     def clean(self):
         from django.core.exceptions import ValidationError
         
         if self.book and not self.book.can_be_used_in_library_items():
             raise ValidationError(_("Only approved books can be added to library inventory"))
         
-        # Only validate if we already have the user (avoids error in initial form)
         if self.created_by and not self.created_by.is_superuser:
             user_profile = getattr(self.created_by, 'profile', None)
             if user_profile and not user_profile.assigned_libraries.filter(id=self.library.id).exists():
                 raise ValidationError(_("You can only add items to your assigned libraries"))
+        
+        if self.pk:
+            old = LibraryBookItem.objects.get(pk=self.pk)
+            if old.status != self.status:
+                raise ValidationError({
+                    'status': _("Cannot change status directly. Use the Reservation admin to manage book status.")
+                })
 
 class Reservation(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("Name"))
@@ -269,9 +274,10 @@ class Reservation(models.Model):
     STATUS_CHOICES = [
         ('pending', _("Pending")),
         ('ready', _("Ready for Pickup")),
+        ('delivered', _("Delivered")),
         ('completed', _("Completed")),
         ('canceled', _("Canceled")),
-        ('delivered', _("Delivered")),
+        ('unreturned', _("Unreturned")),
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name=_("Status"))
     library = models.ForeignKey(Library, on_delete=models.CASCADE, verbose_name=_("Library"))
@@ -322,6 +328,10 @@ class Reservation(models.Model):
             'completed': {
                 'title': _('Reservation Completed'),
                 'message': _('The books have been returned. Thank you for using our library!'),
+            },
+            'unreturned': {
+                'title': _('Book Not Returned'),
+                'message': _('The book has not been returned. Please contact the library for more information.'),
             },
         }
 
@@ -383,35 +393,55 @@ class Reservation(models.Model):
         except Exception as e:
             logger.error(f"Failed to send email to {self.email} for reservation #{self.id}: {str(e)}")
 
+    ALLOWED_TRANSITIONS = {
+        'pending': ['ready', 'canceled'],
+        'ready': ['delivered', 'canceled'],
+        'delivered': ['completed', 'unreturned'],
+        'completed': [],
+        'canceled': [],
+        'unreturned': [],
+    }
+
+    def sync_item_status(self):
+        mapping = {
+            'pending': 'reserved',
+            'ready': 'reserved',
+            'delivered': 'loaned',
+            'completed': 'available',
+            'canceled': 'available',
+            'unreturned': 'unreturned',
+        }
+        target = mapping.get(self.status)
+        if target:
+            self.items.all().update(status=target)
+
     def save(self, *args, **kwargs):
         with transaction.atomic():
             is_new = self.pk is None
             status_changed = False
-            
+
             if not is_new:
                 old_instance = Reservation.objects.get(pk=self.pk)
                 if old_instance.status != self.status:
+                    allowed = Reservation.ALLOWED_TRANSITIONS.get(old_instance.status, [])
+                    if self.status not in allowed:
+                        from django.core.exceptions import ValidationError
+                        raise ValidationError(
+                            _("Cannot change from %(old)s to %(new)s. Allowed transitions: %(allowed)s") % {
+                                'old': old_instance.get_status_display(),
+                                'new': self.get_status_display(),
+                                'allowed': ', '.join(dict(Reservation.STATUS_CHOICES)[s] for s in allowed)
+                            }
+                        )
                     status_changed = True
                     self.status_date = timezone.now()
             else:
                 self.status_date = timezone.now()
-                status_changed = True # Notificar creación
 
-            # Guardamos la reserva
             super().save(*args, **kwargs)
 
-            # Actualización masiva de estados de los libros (LibraryBookItem)
-            if self.status in ['pending', 'ready']:
-                self.items.all().update(status='reserved')
-            elif self.status == 'delivered':
-                self.items.all().update(status='loaned')
-            elif self.status in ['completed', 'canceled']:
-                self.items.all().update(status='available')
-
-            # Send email if there was a relevant change
-            if status_changed:
-                # Use transaction.on_commit to ensure email
-                # is sent only if database confirmed the save
+            if status_changed and self.pk:
+                self.sync_item_status()
                 transaction.on_commit(lambda: self.send_notification())
     
     def __str__(self):
