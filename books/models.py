@@ -415,6 +415,22 @@ class Reservation(models.Model):
         if target:
             self.items.all().update(status=target)
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        if self.pk:
+            old_instance = Reservation.objects.get(pk=self.pk)
+            if old_instance.status != self.status:
+                allowed = Reservation.ALLOWED_TRANSITIONS.get(old_instance.status, [])
+                if self.status not in allowed:
+                    raise ValidationError(
+                        _("Cannot change from %(old)s to %(new)s. Allowed transitions: %(allowed)s") % {
+                            'old': old_instance.get_status_display(),
+                            'new': self.get_status_display(),
+                            'allowed': ', '.join(dict(Reservation.STATUS_CHOICES)[s] for s in allowed)
+                        }
+                    )
+
     def save(self, *args, **kwargs):
         with transaction.atomic():
             is_new = self.pk is None
@@ -423,16 +439,6 @@ class Reservation(models.Model):
             if not is_new:
                 old_instance = Reservation.objects.get(pk=self.pk)
                 if old_instance.status != self.status:
-                    allowed = Reservation.ALLOWED_TRANSITIONS.get(old_instance.status, [])
-                    if self.status not in allowed:
-                        from django.core.exceptions import ValidationError
-                        raise ValidationError(
-                            _("Cannot change from %(old)s to %(new)s. Allowed transitions: %(allowed)s") % {
-                                'old': old_instance.get_status_display(),
-                                'new': self.get_status_display(),
-                                'allowed': ', '.join(dict(Reservation.STATUS_CHOICES)[s] for s in allowed)
-                            }
-                        )
                     status_changed = True
                     self.status_date = timezone.now()
             else:
