@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-13 13:40-0300\n"
+"POT-Creation-Date: 2026-07-15 14:54-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -349,9 +349,13 @@ msgstr "Tu reserva ha sido cancelada."
 msgid "Reservation Completed"
 msgstr "Reserva Completada"
 
-#: books/models.py:330 books/models.py:370
+#: books/models.py:330
 msgid "The books have been returned. Thank you for using our library!"
 msgstr "Los libros han sido devueltos. ¡Gracias por usar nuestra biblioteca!"
+
+#: books/models.py:370
+msgid "Thank you for using our library!"
+msgstr "¡Gracias por usar nuestra biblioteca!"
 
 #: books/models.py:333
 msgid "Book Not Returned"
@@ -362,8 +366,8 @@ msgid ""
 "The book has not been returned. Please contact the library for more "
 "information."
 msgstr ""
-"El libro no ha sido devuelto. Por favor contacte a la biblioteca para "
-"más información."
+"El libro no ha sido devuelto. Por favor contacte a la biblioteca para más "
+"información."
 
 #: books/models.py:339
 msgid "Reservation Update"
@@ -374,26 +378,18 @@ msgstr "Actualización de Reserva"
 msgid "Your reservation status has changed to: %(status)s"
 msgstr "El estado de su reserva ha cambiado a: %(status)s"
 
-#: books/models.py:430
+#: books/models.py:427
 #, python-format
 msgid "Cannot change from %(old)s to %(new)s. Allowed transitions: %(allowed)s"
 msgstr ""
 "No se puede cambiar de %(old)s a %(new)s. Transiciones permitidas: "
 "%(allowed)s"
 
-#: books/models.py:356
-msgid "Reserved Books"
-msgstr "Libros Reservados"
-
-#: books/models.py:358
-msgid "Code"
-msgstr "Código"
-
-#: books/models.py:451
+#: books/models.py:457
 msgid "Reservation"
 msgstr "Reserva"
 
-#: books/models.py:452
+#: books/models.py:458
 msgid "Reservations"
 msgstr "Reservaciones"
 
@@ -548,3 +544,9 @@ msgstr "Administración de Bibliotecas Comunitarias"
 #: libraries/urls.py:28 libraries/urls.py:29
 msgid "Admin Portal"
 msgstr "Portal de Administración"
+
+#~ msgid "Reserved Books"
+#~ msgstr "Libros Reservados"
+
+#~ msgid "Code"
+#~ msgstr "Código"
