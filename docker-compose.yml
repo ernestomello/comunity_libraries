@@ -73,6 +73,7 @@ services:
       - ./media:/app/media
       - static_volume:/app/static_collected
       - ./logs:/app/logs
+    command: gunicorn libraries.wsgi:application --bind 0.0.0.0:8000 --workers 4
     ports:
       - "8000:8000"
     depends_on:
